@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>單字發音練習器</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f7f6; }
+        h2 { color: #333; text-align: center; }
+        /* 說明文字的樣式 */
+        .instruction { font-size: 14px; color: #555; background: #fff; padding: 10px; border-radius: 5px; border-left: 4px solid #4CAF50; margin-bottom: 15px;}
+        textarea { width: 100%; height: 150px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; resize: vertical; box-sizing: border-box; }
+        .btn-generate { display: block; width: 100%; padding: 12px; margin-top: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        .btn-generate:hover { background-color: #45a049; }
+        
+        /* 單字卡樣式 */
+        .word-item { display: flex; justify-content: space-between; background: white; padding: 15px; margin-top: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); align-items: center; }
+        .text-part { font-size: 16px; color: #333; }
+        .play-btn { padding: 8px 15px; cursor: pointer; background-color: #008CBA; color: white; border: none; border-radius: 5px; font-size: 14px; transition: 0.3s; }
+        .play-btn:hover { background-color: #007399; }
+        
+        /* 新增：單元標題的樣式 */
+        .unit-header { background-color: #333; color: white; padding: 10px 15px; border-radius: 8px; margin-top: 25px; margin-bottom: 10px; font-size: 18px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>🔊 班級單字發音練習</h2>
+    
+    <div class="instruction">
+        📝 <b>老師專用說明：</b><br>
+        1. 單字請保持「數字. 英文 中文」格式。<br>
+        2. 如果要新增單元，請在單元名稱前加上 <b>#</b> (例如：# 第一單元)。
+    </div>
+    
+    <textarea id="wordInput">
+# 第一單元 (Unit 1)
+1. get promoted 升遷
+2. regard sb. as 把…視為
+3. asset 資產
+4. lieutenant 中尉
+5. janitor 清潔工
+6. paddle 划槳
+7. estate 地產
+8. lumber 木材、笨拙地移動
+9. quiver 震動
+10. dazzle 頭暈目眩
+11. disclosure 揭露
+12. revenue 收益
+13. harassment 騷擾
+14. prohibit 禁止
+15. ruin 破壞
+16. political 政治的
+17. extramarital affair 婚外情
+18. noticeable 明顯的
+19. lofty 高的/ 高尚的/ 自傲的
+20. muscular 強壯的
+21. minimal 極小的
+22. restrain 抑制
+23. modify 修改
+24. notify 通知
+25. perceive 意識到
+26. fly into a rage 生氣
+27. deteriorate 使惡化
+28. dictate 命令
+29. diagnose 診斷
+30. disable 使殘障
+31. cashier 收銀員
+32. scanner 掃描機
+33. seminar 研討會
+34. coupon 優惠卷
+35. disregard 忽視
+36. disgrace 使丟臉
+37. disapprove  不贊同
+38. displease 使不開心
+39. mumble 含糊說話
+40. rattle 使緊張
+41. moan 抱怨、痛苦的呻吟
+42. peck啄食
+43. dismay 使沮喪
+44. priceless 珍貴的
+45. disperse 使分散
+46. dismantle 解散
+47. displace 迫使離開
+48. garment 服裝
+49. sandal 涼鞋
+50. veil 面紗
+51. armor 盔甲
+52. knight 騎士
+53. manifest  顯現
+54. diminish 減少
+55. abound 大量存在/ 有很多
+56. compile 匯集、編輯
+57. shed 去除
+58. flip 翻轉
+59. patch 修補
+60. slaughter 屠殺
+61. detergent 清潔劑
+62. greasy 油膩的
+63. tile 磁磚
+64. coral 珊瑚
+65. episode 事件、一集
+66. superstitious 迷信的
+67. passionate 熱情的
+68. indignant 憤慨的
+69. skeptical 懷疑的
+70. bizarre 奇怪的
+71. braid 辮子
+72. bazaar 市集
+73. briefcase 公事包
+74. bargain 討價還價
+75. antique 骨董
+76. yacht 遊艇
+77. stalk 莖
+78. phonograph 留聲機
+79. qualify 使有資格
+80. scramble 攀爬
+81. staple 主要的、訂書針
+82. milestone 里程碑
+83. prompt 即時的
+84. agenda 議程
+85. ridge 山脊
+86. federation 聯邦
+87. sparrow 麻雀
+88. howl 嚎叫
+89. refute 駁斥
+90. marshal 統帥
+91. perch 棲息
+92. in the clutch 在關鍵時刻
+93. in the midst 在中間
+94. in the rear 在後面
+95. make a pledge 發誓
+96. lump 腫塊
+97. take an oath 發誓
+98. pistol 手槍
+99. be cocooned in 被包裹著
+100. orient to 指向
+101. be weary of 厭倦
+102. be abundant in 富含
+103. rare species 稀有物種
+104. tropical plant 熱帶植物
+105. despair 絕望
+106. delegate 委託
+107. dispose of 處理
+108. despise 厭惡
+109. contaminate 汙染
+110. soil 土壤
+111. toxic waste 有毒廢棄物
+112. vogue 時尚、流行
+113. under an illusion 幻想中
+114. in turmoil 陷入混亂
+115. in essence 本質上
+116. ingredient 食材
+117. condensed milk 煉乳
+118. maple syrup 楓糖漿
+119. bread crumbs 麵包屑
+120. sponge cake 海綿蛋糕
+121. shed light on 為…解釋
+122. plow on 持續做
+123. place reliance on 依賴
+124. dwell on 老是在說(不好的事)
+125. elimination排除
+126. dispense 分發
+127. be devoured by 充滿(某種情感)
+128. be destined for注定
+129. be draped with 被蓋著
+130. alienate 疏離
+131. on the rack痛苦不堪
+132. mainstream 主流
+133. be isolated from 與…隔離
+134. be allergic to對…過敏
+135. be apt to傾向於
+
+# 第二單元 (Unit 2)
+4. lieutenant 中尉
+5. janitor 清潔工
+6. paddle 划槳
+    </textarea>
+    
+    <button class="btn-generate" onclick="generateList()">產生發音列表</button>
+    
+    <div id="wordList" style="margin-top: 20px;"></div>
+
+    <script>
+        // 網頁載入時，自動先產生一次列表（這樣學生打開網頁就不用自己按按鈕了）
+        window.onload = function() {
+            generateList();
+        };
+
+        function generateList() {
+            const text = document.getElementById('wordInput').value;
+            const lines = text.split('\n');
+            const listDiv = document.getElementById('wordList');
+            listDiv.innerHTML = '';
+
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if(trimmedLine === '') return;
+
+                // 【新增功能】如果這行是以 # 開頭，就把它變成單元標題
+                if (trimmedLine.startsWith('#')) {
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'unit-header';
+                    // 把 # 拿掉，只顯示後面的文字
+                    headerDiv.textContent = trimmedLine.substring(1).trim(); 
+                    listDiv.appendChild(headerDiv);
+                    return; // 處理完標題就跳過，不當作單字處理
+                }
+
+                // 處理單字發音：找尋第一個中文字，並擷取它前面的內容
+                let engPart = trimmedLine;
+                const chineseMatch = trimmedLine.match(/[\u4e00-\u9fa5]/);
+                if (chineseMatch) {
+                    engPart = trimmedLine.substring(0, chineseMatch.index);
+                }
+                // 去除開頭的數字和點 (例如 "1. ")
+                engPart = engPart.replace(/^\d+\.\s*/, '').trim();
+
+                if(engPart === '') return;
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'word-item';
+
+                const textSpan = document.createElement('span');
+                textSpan.className = 'text-part';
+                textSpan.textContent = trimmedLine;
+
+                const playBtn = document.createElement('button');
+                playBtn.className = 'play-btn';
+                playBtn.innerHTML = '🔊 播放';
+                playBtn.onclick = () => speak(engPart);
+
+                itemDiv.appendChild(textSpan);
+                itemDiv.appendChild(playBtn);
+                listDiv.appendChild(itemDiv);
+            });
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US'; 
+                utterance.rate = 0.9;     
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('你的瀏覽器不支援語音功能，請使用 Google Chrome 或 Safari。');
+            }
+        }
+    </script>
+</body>
+</html>
