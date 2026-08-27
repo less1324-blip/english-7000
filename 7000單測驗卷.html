@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哲宇英文7000單測驗卷（單元跳轉版）</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            margin: 0 0 8px 0;
+            color: var(--primary-color);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #64748b;
+            border-radius: 6px;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        /* 下拉式單元跳轉列 */
+        .quick-jump-bar {
+            background: #eef2ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #c7d2fe;
+        }
+
+        .quick-jump-bar select {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .unit-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e293b;
+            margin: 30px 0 10px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .word-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: #fff;
+            transition: border-color 0.3s;
+        }
+
+        .word-info h4 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        .word-info p {
+            margin: 0;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .json-box {
+            font-family: monospace;
+            height: 300px;
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            width: 100%;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>📚 哲宇英文7000單測驗卷</h1>
+        <p>依單元下拉跳轉，快速切換學習單元</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('manage')">📝 單字清單與單元跳轉</button>
+        <button class="tab-btn" onclick="switchTab('export')">🌐 GitHub JSON 專用區</button>
+    </div>
+
+    <div id="tab-manage" class="tab-content active">
+        <!-- 更改為單元跳轉選單 -->
+        <div class="quick-jump-bar">
+            <label for="unitJumpSelect" style="font-weight: 600; white-space: nowrap;">📂 選擇單元跳轉：</label>
+            <select id="unitJumpSelect" onchange="jumpToUnit(this.value)">
+                <option value="">-- 請選擇單元 --</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">單字列表總覽 (<span id="wordCount">0</span> 個單字)</h3>
+            <div id="wordListContainer"></div>
+        </div>
+    </div>
+
+    <div id="tab-export" class="tab-content">
+        <div class="card">
+            <h3>GitHub JSON 格式內容</h3>
+            <textarea id="jsonOutput" class="json-box" readonly></textarea>
+            <div style="margin-top: 15px;">
+                <button onclick="downloadJSON()">下載 words.json 檔案</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 直接貼上您的多單元格式文字
+    // ==========================================
+    const rawText = `
+    # 4000單第一單元(unit 1)
+    1. sheet 張
+    2. loaf 條
+    3. slice 片
+    4. carton 紙盒
+    5. gene 基因
+    6. birth 出生
+    7. contact 接觸
+    8. media 媒體
+    9. therefore 因此
+    10. besides 此外
+    11. infect 感染
+    12. dessert 甜點
+    13. abandon 拋棄
+    14. drown 淹沒
+    15. absorb 吸收
+    16. adjust 調整
+    17. expect 期待
+    18. ignore 忽視
+    19. reveal 洩漏
+    20. cure 治癒
+    21. consult 諮詢
+    22. heal治療
+    23. article 文章
+    24. matter 物品
+    25. marvelous 令人讚嘆的
+    26. humble 謙虛的
+    27. ordinary平凡的
+    28. nevertheless 然而
+    29. impress 使印象深刻
+    30. generally 一般而言
+    31. common  普通的
+    32. transform 轉換、改變
+    33. double 兩倍的
+    34. admit 承認、允許
+    35. prove 證明
+    36. circle 圓圈
+    37. decide 決定
+    38. pair 一對
+    39. interpret 解釋
+    40. paper 紙
+    41. Bill 帳單
+    42. bank 銀行
+    43. deposit 保證金
+    44. mutual 互相的
+    45. remark 評論
+    46. command命令
+    47. suggest 建議
+    48. event 事件
+    49. frankly 坦言
+    50. emotionally 情緒上地
+    51. logically 邏輯上
+    52. complimentary 免費的
+    53. destructive 破壞的
+    54. respectful 尊敬的
+    55. imitate 模仿
+    56. capacity 容量
+    57. affect 影響
+    58. bench長凳
+    59. capability 能力
+    60. reward  獎勵、報答
+    61. offensive 冒犯的
+    62. reservation 預定
+    63. composition 作品、作曲
+    64. charity 慈善機構
+    65. facility設施
+    66. leave out 省略
+    67. match 對手
+    68. peer 同儕
+    69. colony 殖民地
+    70. column 專欄
+    71. code 代碼
+    72. copy複製
+    73. call off 取消
+    73. lay off 解雇
+    74. at length 最終
+    75.take into account  把…列入考慮
+    76. organization 組織
+    77. gain access to 獲得
+    78. take for granted 把…視為理所當然
+    79. disguise 偽裝
+    80. disorder 混亂
+    81. at will 隨意
+    82. at ease 不拘束
+    83. leave for 前往
+    84. in the absence of 沒有
+    85. leave alone  獨處
+    86. by way of 經由
+    87. leave behind 留下
+    88. in case of 假如
+    89. pull off 脫掉
+    90. put off 拖延
+    91. moreover 此外
+
+    # 4000單第二單元(unit 2)
+    1. pajamas 睡衣
+    2. slippers 拖鞋
+    3. necktie 領帶
+    4. lay 下蛋
+    5. devote 奉獻
+    6. determine 決定
+    7. generous 慷慨的
+    8. willing 有意願的
+    9. sneakers 運動鞋
+    10. lie 躺/ 說謊
+    11. technique 技術、技巧
+    12. efficiency 效率
+    13. aboard 在船、飛機、火車上
+    14. board 黑板、董事會
+    15. calculation 計算
+    16. abroad 出國
+    17. broad 寬廣的
+    18. forecast 預測
+    19. ink 墨水
+    20. hint 暗示
+    21. proposal 提議
+    22. mysterious  神秘的
+    23. manufacture 製造
+    24. master  大師、精通
+    25. marvel 驚奇的人、事物
+    26. artificial 人造的
+    27. natural  自然的
+    28. artistic  藝術的
+    29. major 主要的、大部分的
+    30. ashamed可惜的、慚愧的
+    31. still 靜止的、仍然
+    32. liberally 自由地、大方地
+    33. deep 深的、深深地
+    34. emergency 緊急的
+    35. embarrassment尷尬的
+    36. scorching  灼燒的
+    37. embassy 大使館
+    38. miraculous 奇蹟的
+    39. miserable 悲慘的
+    40. marvelous 不可思議的
+    41. doubt 懷疑
+    42. fair 公平的
+    43. bitter 苦的
+    44. empire 帝國
+    42. stress 壓力
+    43. information 訊息
+    44. comic 漫畫、有趣的
+    45. nonsense 不合理、沒意義
+    46. pastime 消遣
+    47. dish 盤子、菜餚
+    48. defensive  防衛的
+    49. objection 反對
+    50. penalty 罰款、刑罰
+    51. reward 獎勵、報酬
+    52. permanent 永久的
+    53. comedy 喜劇
+    54. miracle 奇蹟
+    55. success 成功
+    56. background 背景
+    57. scholarship 獎學金
+    58. circulation 循環、流通
+    59. reluctantly 不情願地
+    60. abruptly 突然地
+    61. attractively 有吸引力地
+    62. thrilled 興奮的
+    63. tragedy 悲劇
+    64. leftover 剩菜
+    65. panic 恐慌的
+    66. boil 煮沸
+    67. fried 油炸的
+    68. roast 烤、烘烤的
+    69. in vain 徒勞無功
+    70. for good 永遠
+    71. sooner or later早晚
+    72. off and on 斷斷續續
+    73. compete競爭
+    74. dispute 爭吵
+    75. end in 結束
+    76. count on依靠
+    77. take one’s own life 結束生命
+    78. live on one’s own 獨自生存
+    79. burst into crying 嚎啕大哭
+    80. give forth 發表、提出
+    81. let away 退讓
+    82. burst out crying嚎啕大哭
+    83. make good use of 善用
+    84. get around 四處閒逛
+    85. make up for 補償
+    86. make room for 騰出空間
+    87. distinguish 區別
+    88. get along with 和…相處
+    89. switch off 關掉
+    90. put sth. into action 把…付諸實行
+    91. as far as 到…程度/ 和…一樣遠
+    92. set aside 把…放在一旁
+    93. get past 度過
+    94. stick to 堅持
+    95. stir up 攪拌
+    96. as long as 只要
+    97. get over 克服
+
+    # 4000單第三單元(unit 3)
+    1. spare 備用
+    2. spoil 寵壞
+    3. spin 旋轉
+    4. splash 噴濺
+    5. illustrate 說明
+    6. leading 領先
+    7. imagine 想像
+    8. evaluate 評估
+    9. leap 跳躍
+    10. leak 洩漏
+    11. filthy 骯髒的
+    12. mature 成熟
+    13. exact 確實的
+    14. organize組織
+    15. battery 電池
+    16. strawberry 草莓
+    17. scarecrow 稻草人
+    18. complaint 抱怨
+    19. inspiration 激勵
+    20. depression 憂鬱症
+    21. hesitation 猶豫
+    22. abstract  抽象的
+    23. gifted 有天分的
+    24. shortly 不久、立刻
+    25. indecisively 猶豫不決地
+    26. inclusively 包含地
+    27. instantly 立即地
+    28. instinctively 本能的
+    29. ordinarily 一般地
+    30. extremely 極致地
+    31. stocking 儲存
+    32. highly 非常
+    33. foul 犯規
+    34. leaf 葉子
+    35. napkin 餐巾
+    36. ceremony 儀式
+    37. responsible 負責的
+    38. ashamed 羞恥的、可惜的
+    39. invention 發明
+    40. blank 空白的
+    41. deaf 聾的
+    42. upset 沮喪的
+    43. blind 盲的
+    44. tradition傳統
+    45. delight 開心
+    46. emission發射
+    47. capture 抓住
+    48. limit 限制
+    49. respond 回應
+    50. invade 入侵
+    51. operation 操作、行動
+    52. technology 技術
+    53. permission 允許
+    54. performance 表現
+    55. calculate 計算
+    56. commitment 承諾
+    57. percent 百分比
+    58. management 經營
+    59. finance 財政、提供經費
+    60. percentage 比率
+    61. portion 部分
+    62. conquer克服
+    63. mount 爬
+    64. accent 口音
+    65. luggage 行李
+    66. companion 同伴
+    67. as long as 只要
+    68. as usual 如往常一樣
+    69. account for 解釋
+    70. compete with 與...競爭
+    71. lean on 依靠
+    72. airliner 客機
+    73. at most 最多
+    74. lead to 導致
+    75. at least 至少
+    76. distribute 分配
+    77. go into effect 生效
+    78. go around 四處逛逛
+    79. go bad 腐敗
+    80. make up to 接近
+    81. compensate for補償
+    82. by and large 大致上
+    83. by and by 遲早
+    84. eat one’s words食言
+    85. hit one’s sack 上床睡覺
+    86. keep off 讓開
+    87. aim at 瞄準
+    88. after all 畢竟
+    89. for good永遠
+    90. give off 發出
+    91. blow one’s horn吹喇叭
+    92. soon afterwards 不久之後
+    93. in advance 事先
+    94. bite/ bit/ bitten 咬
+    95. again and again 一次又一次
+
+    # 4000單第四單元(unit 4)
+    1. prevent 預防
+    2. react 反映
+    3. stretch 延伸
+    4. count 計算
+    5. way 方式
+    6. accurate 精準的
+    7. depression 憂鬱症、沮喪
+    8. reason  理由、原因
+    9. lean 傾斜、 依靠、無脂肪的
+    10. intimate 親密的
+    11. thin 瘦的
+    12. slender修長的
+    13. formula 公式
+    14. slim 苗條的
+    15. horror 恐怖
+    16. stubborn 頑固的
+    17. instrument 工具、樂器、儀器
+    18. statement 敘述
+    19. movement 移動
+    20.sportsmanship 運動家精神
+    21. entertainment 娛樂
+    22. official 官方的
+    23. amusement 娛樂
+    24. creative  有創意的
+    25. artificial 人工的
+    26. maximum 最大
+    27. minimum 最小
+    28. domed 半圓頂的
+    29. assemble 集合
+    30. beat 打擊、敲打
+    31. assist 協助
+    32. facial面部的
+    33. social社會的
+    34. majority多數
+    35. minority少數
+    36. holy 神聖的
+    37. rank 評分
+    38. rate 比率
+    39. income 收益
+    40. muscle 肌肉
+    41. generous 慷慨的
+    42. evaluation 評價
+    43. nasty 下流的、汙穢的
+    44. educational 教育的
+    45. flash 閃光、反射
+    46. stream 溪流
+    47. blood 血
+    48. occupy 佔據
+    49. liquor 酒
+    50. display 展示
+    51.intonation語調
+    52.emphasis強調
+    53.guidance指導
+    54. benefit 利益
+    55.advantage優勢
+    56. in vain 徒勞無功
+    57. opportunity 機會
+    58. instruction 指示、指令
+    59. registration 註冊
+    60. procession 過程
+    61. carve 刻
+    62. risk 冒險
+    63. arrange 安排
+    64. proud驕傲的
+    65.sympathy同情
+    66. defensive 防衛的
+    67. delighted 開心的、高興的
+    68. permission 允許、許可
+    69. description 描述
+    70. impression 印象
+    71. defeat 擊敗
+    72. fine 罰款
+    73. erase 擦拭
+    74. compete競爭
+    75.complete完成
+    76. go in for參加
+    77. compute計算
+    78. by heart熟記
+    79.inside out徹底
+    80. leave for前往
+    81. thank to幸虧
+    82. call for 要求
+    83. go by 依照
+    84. check in登記
+    85. line up 排隊
+    86. make out 做出來
+    87. exert influence運用影響力
+    88. go to great length 竭盡全力
+    89. as busy as a bee 忙碌
+    90. a piece of cake 很容易
+    91. as blind as a bat 盲目的
+    92. stand guard 站崗
+    93. fair play 公平競賽
+    94. snack bar 小吃店
+    95. hot pot 火鍋
+    96. operate on 操作
+    97. pick up 撿起
+    98. pull out 拉出
+    99. draw up安排
+    100. take advantage of利用
+    101. take charge of 負責、掌管
+    102. put into practice 付諸實行
+    103. once in a while 偶爾
+    104. compose 作曲、組成
+    105. make up for 補償
+
+    # 4000單第五單元(unit 5)
+    1. treatment治療
+    2. chart 圖表
+    3. bandage 繃帶
+    4. admission錄取
+    5. fulfill 充滿
+    6. reject 拒絕
+    7. lettuce 萵苣
+    8. fracture 骨折
+    9. miniature縮圖
+    10. minister部長
+    11. immigrant 移民
+    12. acquaintance 熟人
+    13. threaten威脅
+    14. impress 使印象深刻
+    15. surround環繞
+    16. astonish驚嚇
+    17. skating 溜冰
+    18. lengthen 加長、延長
+    19. measure 測量、尺寸
+    20. atmosphere 氣氛
+    21. reservation 預定
+    22. sunrise 日出
+    23. supply 供應
+    24. surgery 手術
+    25. independence 獨立
+    26. individual 個人
+    27. indication 指示
+    28. inclusion 包含
+    29. nationality 國籍
+    30. identity 身分
+    31. humanity 人性
+    32. blend 攪拌
+    33. divide 分開
+    34. hide/ hid/ hidden 躲藏
+    35. vary 使多樣化
+    36. pillow 枕頭
+    37. hollow 中空的
+    38. sorrow 悲傷的
+    39. willow 柳樹
+    40. removal 移除
+    41. employment 雇用
+    42. campaign 活動
+    43. dismissal 解散、免職、解雇
+    44. opposite相反
+    45. various 各式各樣的
+    46. numerous 很多
+    47. additional 額外的
+    48. casual 隨意的
+    49. occupy 佔據
+    50. fit 適合
+    51. cotton 棉
+    52. tolerate 忍受
+    53. flame 火焰、燃燒
+    54. persuade 說服
+    55. demand 需求
+    56. inquire 詢問
+    57. influence 影響
+    58. reluctant 不情願的
+    59. complicate 使複雜
+    60. previous 事先的
+    61. lead…to導致
+    62. take…in理解
+    63. let…down 失望
+    64. drop…of 留下
+    65. is about to  即將
+    66. get upset 沮喪
+    67. shake hands 握手
+    68. go through 經歷
+    69. do away 廢除
+    70. knock up  喚醒
+    71. knock over 撞倒
+    72. knock about 碰撞
+    73. knock out 暈倒
+    74. in aid of 幫助
+    75. end up with 結束
+    76. be based on 以…為基礎
+    77. go around 四處晃晃
+    78. go near to 去附近
+    79. live up to 使滿意
+    80. live on  以…維生
+    81. make up with 與….和好
+    82. make believe 使相信
+    83. take after 仿效
+    84. put aside 擱置
+    85. look over 查看
+
+    # 4000單第六單元(unit 6)
+    1.  accomplishment 成就
+    2. circumstance 環境
+    3. frighten 嚇到
+    4. discourage 使氣餒
+    5. freeze 凍結、愣住
+    6. gentle溫和的
+    7. legal 合法的
+    8. fatal 致命的
+    9. acquire 獲得
+    10. require 需要
+    11. extinct 使滅絕
+    12. worthy值得的
+    13. struggle 努力、奮鬥
+    14. be fond of 喜歡
+    15. considerate 體貼的
+    16. humbly 謙遜地
+    17. lightly 輕輕地
+    18. gratefully 感激地
+    19. memorize記憶
+    20. contact 接觸
+    21. assure 確保
+    22. collect 收集
+    23. attach 附上
+    24. gain 獲得
+    25. stir 攪拌
+    26. strike罷工
+    27. jealous忌妒的
+    28. instinct 本能
+    29. stick 刺
+    30. realize意識到
+    31. distinct明顯的
+    32. native 本地的
+    33. national 國家的
+    34. harvest 收成
+    35. dose 劑量
+    36.dialogue對話
+    37. fantasy 奇幻
+    38. evolve 進化
+    39. slogan 口號
+    40. poison 下毒
+    41. enormous 大量的
+    42. unique 獨特的
+    43. talent 才能
+    44. ideal 理想的
+    45. ordinary 平凡的、普通的
+    46. catalogue 目錄
+    47. symbol 象徵
+    48. cooperation 合作
+    49. fiction 小說、虛構故事
+    50. endangered 瀕臨滅絕的
+    51. headline頭條
+    52. fat 脂肪
+    53. flat 平坦的
+    54. fate 命運
+    55. flee 逃跑
+    56. mental 心理上的
+    57. physical 身體上的
+    58. spiritual 精神上的
+    59. psychological 心理的
+    60. completion 完成
+    61. composition 作曲
+    62. concert音樂會
+    63. compliment 恭維
+    64. make a difference in 在...有所不同
+    65. bring shame on 帶來恥辱
+    66.leg go of放手
+    67. get used to習慣
+    68. do with 做
+    69. do away with 廢除
+    70. cut in 打斷
+    71. stick to堅持
+    72. be engaged in 從事、忙於
+    73. drive away趕走
+    74. consist of 由...組成
+    75. in the air 空氣中
+    76. on the air 廣播中
+    77. off the air 停播
+    78. by air 搭飛機
+    79. prevent 預防
+    80. tell…from 區別
+    81. protect保護
+    82. look into調查
+    83. take after 與…相似
+    84. make out理解
+    85. or so 大約
+    86. by and large 大體上
+    87. in any sense 就某種意義而言
+    88. by means of 藉由
+    89. in the shape 形狀
+    90. for a moment 一會兒
+    91. divorce離婚
+
+    # 4000單第七單元 (unit 7)
+    1. value 價值
+    2. vanish 消失
+    3. fine 罰款
+    4. fan 煽動、電風扇
+    5. legend 傳奇
+    6. rumor 謠言
+    7. effective 有效的
+    8. adequate 足夠的
+    9. limited 有限的
+    10. signature 簽名
+    11. significance 重要
+    12. sincerity  誠意
+    13. hug 擁抱
+    14. hammer 錘
+    15. hum 哼曲子
+    16. hush 使安靜
+    17. certain 確定的
+    18. attempt 企圖、嘗試
+    19. trial 試驗
+    20. transportation 運輸
+    21. observation 觀察
+    22. digestion 消化
+    23. demonstration 示範、示威
+    24. jewel 珠寶
+    25. jelly 果凍
+    26. jaw 下顎
+    27. jam 阻塞
+    28. short-handed 速記的
+    29. narrow-minded思想狹隘的
+    30. near-sighted 近視的
+    31. forward-looking有遠見的
+    32. blush 臉紅
+    33. kneel 跪下
+    34. flexible 有彈性的
+    35. diligent勤勉的
+    36. energetic 有活力的
+    37. stubborn 固執的
+    38. endure 忍受
+    39. internal 內部的
+    40. domestic 國內的
+    41. organically 有機地
+    42. biologically 生物上地
+    43. economically經濟上地
+    44. permit 允許
+    45. protect 保護
+    46. cease 停止
+    47. stereo立體聲
+    48. stream溪流
+    49. steam 蒸氣
+    50.graceful優雅的
+    51. concern 關注
+    52. concept 概念
+    53. pressure 壓力
+    54. analysis 分析
+    55. look up 查詢
+    56. look in 訪問
+    57. look out注意
+    58. let alone 更不用說
+    59. with regard to 關於
+    60. in shortage of 短缺
+    61. hold good有效
+    62. stand still靜止
+    63. lie open別動
+    64. break loose 鬆脫
+    65. hang around 閒逛
+    66. lose one’s head 失去方向
+    67. poke one’s head 探出頭
+    68. count heads 人口普查
+    69. take place發生
+    70. to and fro來回
+    71. ups and downs起伏
+    72. beyond question 毫無疑問
+    73. back and forth 來回
+    74. take shelter from躲避
+    75. in and out進出
+    76. out of question毫無疑問
+    77. in question 談論中
+    78. out of the question 不可能
+    79. take altogether 總體而言
+    80. above all 最重要的是
+
+    # 4000單第八單元 (unit 8)
+    1. development 發展
+    2. strength 力量
+    3. faith 信心
+    4. evidence 證據
+    5. charity 慈善機構
+    6. funeral 葬禮
+    7. specifically 特別地
+    8. hesitantly 猶豫地
+    9. leisurely 悠閒地
+    10. hastily 輕率地、匆忙地
+    11. adapt 適應
+    12. adjust 調整
+    13. adopt 採用
+    14. advise 建議
+    15. slippery 滑的
+    16. lousy 糟糕的
+    17. household 家庭的
+    18. housekeeper 管家
+    19. acceptance 接受
+    20. assistance 協助
+    21. mercy 慈悲
+    22. proposal提議
+    23. preference 偏好
+    24. attitude 態度
+    25. fist 拳頭
+    26. wrinkle 皺紋
+    27. ankle 腳踝
+    28. shoulder 肩膀
+    29. invade 入侵
+    30. pray 祈禱
+    31. restore 恢復
+    32. investigate 調查
+    33. fad 時尚
+    34. luxury 奢侈
+    35. tease 捉弄
+    36. boast 吹噓
+    37. determine 決定
+    38. treasure 珍惜
+    39. force 強迫
+    40. afford 負擔
+    41. enforce 實施、執行
+    42. accommodation 住宿
+    43. organization 組織
+    44. abbreviation 縮寫
+    45. meter 米
+    46. millimeter 毫米
+    47. centimeter 釐米
+    48. feet 英尺
+    49. track 蹤跡、小路
+    50. distance 距離
+    51. direction 方向
+    52. philosophy 哲學
+    53. flattery 奉承
+    54. resignation 辭職
+    55. collect 收集
+    56. pirate 盜版、掠奪
+    57. confess 坦承
+    58. confirm 確認
+    59. conclude 結論
+    60. commute 通勤
+    61. turn in 繳交
+    62. raise up 募集
+    63. let up 停止
+    64. catch up趕上
+    65. hold up 延誤
+    66. hook up掛勾
+    67. get the picture of 理解
+    68. reach out 伸手
+    69. at the margin 在邊緣
+    70. odds and ends 零碎雜物
+    71. rain or shine 天氣好壞
+    72. go down and drain 白費
+    73. to extremes 極致
+    74. on and on 繼續
+    75. back on my words 我保證
+    76. mix up 混淆
+    77. line up 排隊
+    78. map out安排
+    79. pass out昏倒
+    80. drop off下車
+    81. amount to 總數
+    82. see sb. off 送行
+    83. talk over商議
+    84. keep off避免
+    85. get hold of獲得
+
+    # 4000 單第九單元(unit 9)
+    1. site 地點
+    2. campaign活動
+    3. invade 入侵
+    4. elevator 電梯
+    5. reduce 減少
+    6. humid 潮濕的
+    7. radical 激進的
+    8. conservative 保守的
+    9. character 特徵
+    10. liberal 自由的
+    11. adventurous 冒險的
+    12. advantageous 有益的
+    13. exhausted 耗盡的
+    14. interpret 解釋
+    15. development 發展
+    16. flaw 缺點
+    17. merit 優點
+    18. gather 聚會
+    19. chase 追逐
+    20. just 正直的
+    21. negative 否定的
+    22. decisive 果斷的
+    23. destructive 破壞性的
+    24. positive 正面的
+    25. passive 消極的、被動的
+    26. justify 證明
+    27. justice 正義
+    28. shave 剃
+    29. shift 轉移
+    30. enemy 敵人
+    31. proper 適當的
+    32. well-behaved 乖巧的
+    33. well-informed 消息靈通的
+    34. well-organized有條理的
+    35. excessive 超過的
+    36. fantasy 幻想
+    37. loose 寬鬆的
+    38. spit 吐
+    39. splash 噴濺
+    40. swallow吞嚥
+    41. swear 發誓
+    42. orbit 軌道
+    43. globe 地球
+    44. conscience 良心
+    45. slight 輕微的
+    46. work on從事
+    47. make out 理解
+    48. move out 遷出
+    49. take up 從事
+    50. make certain 確定
+    51. in one’s shoes 站對方立場思考
+    52. in case 假如
+    53. in question 正在談論中
+    54. be drilled into 深入探討
+    55. be driven off 離開
+    56. be bound to 即將
+    57. take turns 輪流
+    58. make sense to 有道理的
+    59. take advantage of 利用
+    60. hold back  壓抑
+    61. hit back 回擊
+    62. by chance 偶然
+    63. off hand 臨時
+    64. at present 目前
+
+    # 4000單第十單元 (unit 10)
+    1. steep 陡峭的
+    2. steady 穩定的
+    3. stable 穩定的
+    4. standard 標準的
+    5. glimpse 瞥見
+    6. glance 看一下
+    7. gaze 凝視
+    8. liberty 自由
+    9. affection 愛慕
+    10. minor 未成年人
+    11. naked 裸體
+    12. typical 典型的
+    13. letter 字母
+    14. victorious 獲勝的
+    15. switch 開關
+    16. stitch 縫合
+    17. sweep 橫掃
+    18. elbow 手肘
+    19. ankle 腳踝
+    20. dominate 統治
+    21. tolerate 忍耐
+    22. spoil 損壞
+    23. neglect 忽視
+    24. operator 操作員
+    25. source 來源
+    26. rumor 謠言
+    27. verse 韻文
+    28. evaluate 評估
+    29. progress 前進
+    30. originally 最初地
+    31. automatically 自動地
+    32. conclusively 決定性地
+    33. intensively 密集地
+    34. parade 遊行
+    35. demonstration 示威
+    36. ceremony 典禮
+    37. procession 隊伍、遊行
+    38. slippery滑的
+    39. stiff 僵硬的
+    40. forbid 禁止
+    41. platform平台
+    42. constructive 有建設性的
+    43. considerable相當的
+    44. considerate 體貼的
+    45. constant 不斷的
+    46. baby shower 準媽媽派對
+    47. baby boom 嬰兒潮
+    48. baby face 娃娃臉
+    49. baby goods 嬰兒用品
+    50. wrinkle up 皺起
+    51. shut out 拒之門外
+    52. dry up 乾枯
+    53. die out 滅絕
+    54. blow down 吹倒
+    55. help oneself 隨意取用
+    56. devote 奉獻
+    57. engage 從事
+    58. surrender 投降
+    59. stand on your own two feet 站穩腳步
+    60. at no cost 不計成本
+    61. be indicative of 象徵
+    62. be fond of 喜愛
+    63. Meet others halfway 彼此妥協
+
+    # 4000 單第十一單元 (unit 11)
+    1. exceptional 例外的
+    2. superior 高級的
+    3. singular 單數的
+    4. misery 痛苦
+    5. maturity 成熟度
+    6. generation 世代
+    7. stick 棍子、拐杖
+    8. ambitious 有野心的
+    9. aggressive 具侵略性的
+    10. admirable  令人欽佩的
+    11. stiff 僵硬的
+    12. interpret 解釋
+    13. intimate 暗示
+    14. struggle 鬥爭、努力
+    15. microscope 顯微鏡
+    16. microwave 微波
+    17. microfilm 微縮膠片
+    18. negotiate 談判
+    19. monster 怪物
+    20. trick 欺騙、把戲
+    21. disk 硬碟
+    22. shortage短缺
+    23. sting 刺
+    24. victory 勝利
+    25. disaster 災難
+    26. award 頒發
+    27. shame 恥辱
+    28. maintain維持
+    29.  compete 競爭
+    30. imitate 模仿
+    31. bounce 反彈
+    32. bump 碰撞
+    33. brake 剎車
+    34. bless 祝福
+    35. knot 打結
+    36. champion 冠軍
+    37. sneeze 打噴嚏
+    38. awareness 意識
+    39. estimate 預估
+    40. surroundings 環境
+    41. however 但是、然而
+    42. therefore 因此
+    43. moreover 此外
+    44. otherwise 否則
+    45. sportmanship運動家精神
+    46. stamp 郵票
+    47. court 法院
+    48. gum 口香糖
+    49. cough 咳嗽
+    50. yawn 打呵欠
+    51. whisper 低語
+    52. popularity 名聲、普及
+    53. population 人口
+    54. pollution 汙染
+    55. position 位置
+    56. consistent 一致的
+    57. link 連接
+    58. confront 面對
+    59. contact 接觸
+    60. come into existence 開始存在
+    61. pull oneself together 振作起來
+    62. make both ends meet 量入為出
+    63.take sth. apart 拆開
+    64. tell…apart 分辨
+    65. keep…apart 保持距離
+    66. fall…apart 破碎
+    67. call off 取消
+    68. throw away 扔掉
+    69. throw up 吐
+    70. stir up 激起
+    71. status 地位
+    72. in seconds 在很短的時間內
+    73. ever after 然後
+    74. lose one’s breath 氣喘呼呼
+    75. now and then偶爾
+    76. is similar to 與…相似
+    77. is named after以…命名
+    78. be keen on 熱衷於
+    79. with regard to 關於
+    80. arm in arm 手挽手
+    81. all in all 極其重要的
+
+    #4000單第十二單元 (unit 12)
+    1. witness目擊者
+    2. volunteer 自願者
+    3. manufacturer 製造商
+    4. electric電力的
+    5. global 全球的
+    6. heat 加熱
+    7. liquid 液體
+    8. solid 固體
+    9. foundation 基礎
+    10. affair 緋聞
+    11. union 聯盟
+    12. imagination 想像
+    13. explosive 炸藥
+    14. shallow  淺的、膚淺的
+    15. illustration 插圖
+    16. innocence  清白
+    17. ignorance  忽視
+    18. agricultural 農業的
+    19. military 軍事的
+    20. awkward 笨拙的
+    21. distract 使分心
+    22. fertile 肥沃的
+    23. vacant 空的
+    24. influential 有影響力的
+    25. hasty 草率的
+    26. discipline 訓練
+    27. retreat 撤退
+    28. weapon 武器
+    29. neighborhood  附近
+    30. territory 領土
+    31. landscape 風景
+    32. geography 地理
+    33. bother 煩惱
+    34. critic 批評
+    35. victim 受害者
+    36. applicant 申請者
+    37. inspection 檢查
+    38. expectation 期望
+    39. reception 接待、接收
+    40. outline 外型
+    41. outlook 景色；前途
+    42. outfit 套裝
+    43. outcome結果
+    44. request 要求
+    45. charge 收費
+    46. violate 違反
+    47. obey 服從
+    48. license 執照
+    49. consultant 顧問
+    50. economist 經濟學家
+    51. lecturer講師
+    52. fed up with 受夠
+    53. regard sth./ sb. as 把…當成
+    54. on occasions 偶爾
+    55. once in a blue moon 久久一次
+    56. to date 至今
+    57. once upon a time 很久之前
+    58. in earnest 認真
+    59. in vain 徒勞
+    60. in a rage憤怒
+    61. under arrest 被逮捕
+    62. in one’s shoes 站某人的立場
+    63. needless to say 無庸置疑
+    64. odds and ends 零碎東西
+    65. a bed of rose 稱心如意
+    66. all walks of life 各行各業
+    67. get hooked on 上癮
+    68. get adapted to 適應
+    69. get adjusted to 調整
+    70. get started with 開始
+
+    # 4000 單第十三單元(unit 13)
+    1. scout 偵查
+    2. scold 責罵
+    3. automobile 汽車
+    4. grocery 雜貨店
+    5. liquor 酒
+    6. vessel 船
+    7. vehicle 車輛
+    8. aircraft 飛機
+    9. migrate 遷移
+    10. tough 艱難的
+    11. stiff 堅硬的
+    12. smooth 柔順的
+    13. grocery 雜貨店
+    14. immigrate 移入
+    15. emigrate 移出
+    16. candidate 候選人
+    17. journalist 記者
+    18. technician 技術員
+    19. nylon 尼龍
+    20. wreck 殘骸
+    21. sigh 嘆氣
+    22. hesitate 猶豫
+    23. disguise  偽裝
+    24. framework 框架
+    25. artwork 作品
+    26. glasswork 玻璃製品
+    27. brass 黃銅
+    28. breast 胸部
+    29. discourage 使氣餒
+    30. exhaust 耗盡
+    31. preserve 保存
+    32. overtake 趕上、壓制
+    33. overthrow 推翻
+    34. overpass 天橋
+    35. overlook 忽視
+    36. barn 穀倉
+    37. charity 慈善機構
+    38. mansion 豪宅
+    39. studio 工作室
+    40. strip 長條
+    41. statue 雕像
+    42. stadium 體育場
+    43. movable 可移動的
+    44. portable 可攜式的
+    45. mobile 可移動的
+    46. replaceable 可替換的
+    47. concert 音樂會
+    48. context 上下文
+    49. comment 評論
+    50. contract 合約
+    51. under no circumstances 絕不
+    52. in this condition 在這情況下
+    53. by all means 當然可以
+    54. on any account 無論如何
+    55. take part in 參加
+    56. take shelter from 躲避
+    57. take revenge on 報復
+    58. at present 目前
+    59. at ease 安心
+    60. serve as 當成
+    61. in memory of 紀念
+    42. in honor of 表示敬意
+    43. ill at ease 不自在
+    44. good for nothing 沒出息
+    45. clear off 消除
+    46. clean out 清理
+
+    # 4000 單第十四單元(unit 14)
+    1. sympathy 同情
+    2. symphony 交響曲
+    3. harmony 和諧
+    4. routine 例行公事
+    5. quarrel 吵架
+    6. gossip 閒聊
+    7. literary 文學
+    8. laboratory 實驗室
+    9. force 強迫
+    10. litter 垃圾
+    11. alarm 警告
+    12. wrinkle 起皺
+    13. expose 曝光
+    14. estimate 估計
+    15. pat 拍
+    16. maximum 最大值
+    17. minimum 最小值
+    18. factory 工廠
+    19. souvenir 紀念品
+    20. strategy 策略
+    21. destruction 毀滅
+    22. charge 電荷、費用
+    23. existence 存在
+    24. recognize 認出
+    25. characterize 特徵
+    26. nickname 取綽號
+    27. breathe 呼吸
+    28. bracelet 手鐲
+    29. uniform 制服
+    30. university 大學
+    31. union 工會
+    32. drill 鑽
+    33. abandon 放棄
+    34. evident 明顯的
+    35. outstanding 傑出的
+    36. sharp 銳利
+    37. smooth 平滑的
+    38. rusty 生鏽的
+    39. chase 追逐
+    40. stress 強調
+    41. admit 容許
+    42. dismiss 解雇
+    43. commit 承諾
+    44. poster 海報
+    45. postscript 後記
+    46. postage 郵資
+    47. postman 郵差
+    48. effort 努力
+    49. chanting spell 念咒
+    50. nursery rhyme 童謠
+    51. side dish 配菜
+    52. foundation stone 基石
+    53. be equal to 與…相等
+    54. be economical of 節約、善用
+    55. be independent of 獨立的
+    56. accuse of 指控
+    57. associate with與…有關
+    58. combine with 與…結合
+    59. release 釋放
+    60. under the weather 心情不好
+    61. in shape 保持體態
+    62. on duty 值班
+    63. hunt for 狩獵
+    64. appeal to 呼籲
+    65. in a pet 生氣
+    66. ins and outs 來龍去脈
+    67. call it off 關閉
+    68. wind it up 上發條
+    69. give it away 送人
+    70. watch it over 監視
+    71. let go of  鬆開
+    72. curse 詛咒
+    73. put an end to 杜絕
+
+    # 4000單第十五單元(unit 15)
+    1. surgeon 外科醫生
+    2. agent 代理商
+    3. architect 建築師
+    4. gradually 逐漸地
+    5. gracefully 優雅地
+    6. intensively 集中地
+    7. closely 密切地
+    8. target 目標
+    9. gather 聚集
+    10. liquid 液體
+    11. alcohol 酒精
+    12. examine 檢查
+    13. discourage 勸阻
+    14. minority 少數
+    15. privileged 有特權的
+    16. superior 高級的
+    17. distinguished 高貴的、卓越的
+    18. bald 禿頭的
+    19. hasty 倉促的
+    20. bold 大膽的
+    21. strict 嚴格的
+    22. display 展示
+    23. fantasy 幻想
+    24. daydream 白日夢
+    25. nightmare 惡夢
+    26. plate 盤子
+    27. trunk 後車箱、樹幹
+    28. surroundings 周圍
+    29. circumstance 環境
+    30. appointment 預約
+    31. extent 程度
+    32. extension 範圍、分機
+    33. extreme 極端的
+    34. loan 貸款
+    35. owe 欠
+    36. cherish 珍惜
+    37. furnish 提供
+    38. flush 興奮、臉紅
+    39. hush 安靜
+    40. polish 擦亮
+    41. postpone 推遲
+    42. revolve 盤旋
+    43. transfer 轉讓
+    44. convey 傳達
+    45. on sale 特價
+    46. on the market 出售
+    47. in the market 待售
+    48. but for = without
+    49. regardless of 不論
+    50. illustrate 說明
+    51. jam 擠滿
+    52. on purpose 故意
+    53. in no position 不可以
+    54. in low spirit 情緒低落
+    55. esteem 敬意
+    56. on average 平均
+    
+    # 7000單第一單元 (Unit 1)
+    1. get promoted 升遷
+    2. regard sb. as 把…視為
+    3. asset 資產
+    4. lieutenant 中尉
+    5. janitor 清潔工
+    6. paddle 划槳
+    7. estate 地產
+    8. lumber 木材、笨拙地移動
+    9. quiver 震動
+    10. dazzle 頭暈目眩
+    11. disclosure 揭露
+    12. revenue 收益
+    13. harassment 騷擾
+    14. prohibit 禁止
+    15. ruin 破壞
+    16. political 政治的
+    17. extramarital affair 婚外情
+    18. noticeable 明顯的
+    19. lofty 高的/ 高尚的/ 自傲的
+    20. muscular 強壯的
+    21. minimal 極小的
+    22. restrain 抑制
+    23. modify 修改
+    24. notify 通知
+    25. perceive 意識到
+    26. fly into a rage 生氣
+    27. deteriorate 使惡化
+    28. dictate 命令
+    29. diagnose 診斷
+    30. disable 使殘障
+    31. cashier 收銀員
+    32. scanner 掃描機
+    33. seminar 研討會
+    34. coupon 優惠卷
+    35. disregard 忽視
+    36. disgrace 使丟臉
+    37. disapprove  不贊同
+    38. displease 使不開心
+    39. mumble 含糊說話
+    40. rattle 使緊張
+    41. moan 抱怨、痛苦的呻吟
+    42. peck啄食
+    43. dismay 使沮喪
+    44. priceless 珍貴的
+    45. disperse 使分散
+    46. dismantle 解散
+    47. displace 迫使離開
+    48. garment 服裝
+    49. sandal 涼鞋
+    50. veil 面紗
+    51. armor 盔甲
+    52. knight 騎士
+    53. manifest  顯現
+    54. diminish 減少
+    55. abound 大量存在/ 有很多
+    56. compile 匯集、編輯
+    57. shed 去除
+    58. flip 翻轉
+    59. patch 修補
+    60. slaughter 屠殺
+    61. detergent 清潔劑
+    62. greasy 油膩的
+    63. tile 磁磚
+    64. coral 珊瑚
+    65. episode 事件、一集
+    66. superstitious 迷信的
+    67. passionate 熱情的
+    68. indignant 憤慨的
+    69. skeptical 懷疑的
+    70. bizarre 奇怪的
+    71. braid 辮子
+    72. bazaar 市集
+    73. briefcase 公事包
+    74. bargain 討價還價
+    75. antique 骨董
+    76. yacht 遊艇
+    77. stalk 莖
+    78. phonograph 留聲機
+    79. qualify 使有資格
+    80. scramble 攀爬
+    81. staple 主要的、訂書針
+    82. milestone 里程碑
+    83. prompt 即時的
+    84. agenda 議程
+    85. ridge 山脊
+    86. federation 聯邦
+    87. sparrow 麻雀
+    88. howl 嚎叫
+    89. refute 駁斥
+    90. marshal 統帥
+    91. perch 棲息
+    92. in the clutch 在關鍵時刻
+    93. in the midst 在中間
+    94. in the rear 在後面
+    95. make a pledge 發誓
+    96. lump 腫塊
+    97. take an oath 發誓
+    98. pistol 手槍
+    99. be cocooned in 被包裹著
+    100. orient to 指向
+    101. be weary of 厭倦
+    102. be abundant in 富含
+    103. rare species 稀有物種
+    104. tropical plant 熱帶植物
+    105. despair 絕望
+    106. delegate 委託
+    107. dispose of 處理
+    108. despise 厭惡
+    109. contaminate 汙染
+    110. soil 土壤
+    111. toxic waste 有毒廢棄物
+    112. vogue 時尚、流行
+    113. under an illusion 幻想中
+    114. in turmoil 陷入混亂
+    115. in essence 本質上
+    116. ingredient 食材
+    117. condensed milk 煉乳
+    118. maple syrup 楓糖漿
+    119. bread crumbs 麵包屑
+    120. sponge cake 海綿蛋糕
+    121. shed light on 為…解釋
+    122. plow on 持續做
+    123. place reliance on 依賴
+    124. dwell on 老是在說(不好的事)
+    125. elimination排除
+    126. dispense 分發
+    127. be devoured by 充滿(某種情感)
+    128. be destined for注定
+    129. be draped with 被蓋著
+    130. alienate 疏離
+    131. on the rack痛苦不堪
+    132. mainstream 主流
+    133. be isolated from 與…隔離
+    134. be allergic to對…過敏
+    135. be apt to傾向於
+
+    # 7000單第二單元 (Unit 2)
+    1.     pulse 脈搏
+    2.     motive 動機
+    3.     pluck 勇氣
+    4.     refreshing 清新宜人的
+    5.     blizzard 暴風雪
+    6.     erosion 土石流
+    7.     hail 冰雹
+    8.     butcher shop 肉販店
+    9.     lodge 寄宿
+    10.  nag 嘮叨
+    11.  patronize 光顧
+    12.  mutter 喃喃自語
+    13.  nibble 小口咬
+    14.  ecstasy 欣喜若狂
+    15.  sneer 冷嘲熱諷
+    16.  linger 徘徊
+    17.  dissolve 解散
+    18.  dissuade 勸阻
+    19.  abolish 廢除
+    20.  impose 施加
+    21.  salute 致敬
+    22.  cashmere 羊絨
+    23.  pullover 套頭毛衣
+    24.  index 索引
+    25.  ranch 大牧場
+    26.  preach 講道
+    27.  rejoice 深感欣喜
+    28.  absurd 荒謬的
+    29.  feeble 虛弱的
+    30.  innumerable 無數的
+    31.  majestic 莊嚴的
+    32.  stammer 口吃
+    33.  blunder 錯誤
+    34.  liner 郵輪
+    35.  shutter 百葉窗
+    36.  dreary 沉悶的
+    37.  drastic 嚴厲的
+    38.  dubious 可疑的
+    39.  comet 彗星
+    40.  stripe 條紋
+    41.  furry 毛茸茸的
+    42.  rug 墊子
+    43.  textile 織物
+    44.  terrace 陽台
+    45.  kidney 腎臟
+    46.  nurture 養育
+    47.  victimize 迫害
+    48.  utter 出聲
+    49.  dimension 維度
+    50.  diameter 直徑
+    51.  directory 目錄
+    52.  graze 擦傷
+    53.  abide 忍受
+    54.  conference room 會議室
+    55.  freight 貨物
+    56.  ripple 漣漪
+    57.  gust 一陣強風
+    58.  aptitude 資質
+    59.  institute 學院
+    60.  martial art 武術
+    61.  status 狀況
+    62.  overall 整體的
+    63.  auction 拍賣會
+    64.  under oath 宣誓作證
+    65.  in mint condition 狀態完好
+    66.  make a mockery of 嘲笑
+    67.  lodge a … about 提出…
+    68.  persuasive 有說服力的
+    69.  downward spiral 迅速惡化
+    70.  out of compassion 出於同情
+    71.  on one’s behalf 作…的代表
+    72.  free of charge免費
+    73.  be entitled to 被賦予…權力
+    74.  induce 勸說
+    75.  delegate 委託
+    76.  tuition 學費
+    77.  enrollment 註冊
+    78.  under escort of 在…的護送下
+    79.  eruption 噴發
+    80.  loan 貸款
+    81.  in turns 輪流
+    82.  smash 打碎
+    83.  under the plow用於耕種的
+    84.  in rotation 輪流
+    85.  on impulse 衝動之下
+    86.  set … on fire 使…燃燒
+    87.  suffered a setback 遭遇挫折
+    88.  run riot 胡鬧
+    89.  stunt 特技表演
+    90.  swap 交換
+    91.  messy  雜亂的
+    93.  in conjunction with與…合作
+    94.  fiddle with 擺弄
+    95.  accustom to 使習慣於
+    96.  on the scent 快要找到
+    97.  token 象徵
+    98.  the rear 後面
+    99.  exclusive of  不包括
+    100.  in acknowledgement of 作為…的答謝
+    101.  ward 病房
+    102.  intuition 直覺
+
+    # 7000單第四單元 (unit 4)
+    1. keep one’s word 兌現承諾
+    2. reckless 魯莽的
+    3. massive大規模的
+    4. naive 天真的
+    5. bachelor 單身漢
+    6. insist 堅持
+    7. teller 出納員
+    8. nominate 提名
+    9. rifle 匆忙翻找
+    10. magnify 放大
+    11. rally 召集
+    12. objection 反對
+    13. adolescent 青少年
+    14. obstinate 固執的
+    15. masculine 男性的
+    16. monstrous 殘酷的
+    17. journalist 記者
+    18. be accused of 被指控
+    19. install 安裝
+    20. trespass 入侵
+    21. quiver 顫抖
+    22. stagger蹣跚
+    23. browse 瀏覽
+    24. thrust 猛刺
+    25. stride 大步走
+    26. induce 勸說
+    27. exceptional  傑出的
+    28. assertive 斷言的
+    29. rigorous 嚴格的
+    30. coincident  巧合的
+    31. license 執照
+    32. renew更換
+    33. compile 編譯
+    34. depict 描寫
+    35. expire 過期
+    36. kindle 激起
+    37. faction 派系
+    38. faculty 機能
+    39. flicker 閃爍
+    40. fragment 碎片
+    41. prolonged 長期的
+    42. shortage 短缺
+    43. feminine 女性
+    44. fling  短暫歡樂時光
+    45. fraud 詐騙
+    46. famine 飢荒
+    47. impoverished貧困的
+    48. expel 驅逐
+    49. extract 提取
+    50. exert 盡力
+    51. escalate 加劇
+    52. underpaid 報酬偏低的
+    53. outdo 超過
+    54. overwork 過度工作
+    55. revolt 反抗
+    56. repay 償還
+    57. accommodate 容納
+    58. shabby 破爛的
+    59. diplomatic 外交的
+    60. feasible 可行的
+    61. spacious 寬敞的
+    62. devastated 極為震驚的
+    63. cancer 癌症
+    64. cavalry 裝甲部隊
+    65. terminal 末期
+    66. dilemma 兩難
+    67. manufacturer 製造商
+    68. obey 遵守
+    69. feedback 回饋
+    70. integrate 融入
+    71. safeguard  保衛
+    72. bruise 撞傷
+    73. hiss 發出嘶嘶聲
+    74. sway 搖擺
+    75. assassinate 刺殺
+    76. evidence 證據
+    77. conception 觀念
+    78. logo標誌
+    79. notion 觀念
+    80. particle 一絲
+    81. sailor 水手
+    82. organize 組織
+    83. navigate 引導
+    84. publicize 公佈
+    85. atomic bomb 原子彈
+    86. embrace 擁抱
+    87. blast 轟炸
+    88. stutter 口吃
+    89. whirl 旋轉
+    90. explicit 清楚明確的
+    91. exquisite 精美的
+    92. exotic 異國的
+    93. perceive 視為
+    94. be oriented to 導向
+    95.be menaced by 被威脅的
+    96.argument爭論
+    97. mingle with 互相來往
+    98. jeer at 嘲笑…
+    99. patch up 修復
+    100.prop up 成癮
+    101.in exile 流放
+    102.on patrol 巡邏中
+    103. at stake 有風險
+    104. batter 猛打
+    105. crunch 蹲
+    106. rejoice 欣喜若狂
+    107. glare 怒視
+    108.slap 賞巴掌
+    109.fury 憤怒
+    110.on your own initiative 主動地
+    111.by fair means or foul 不擇手段
+    112. glee 快樂
+    113. gnaw 啃咬
+    114.conscience 良心
+    115.plunge迅速下降
+    116. gleam of hope 一絲希望
+    117. breakthrough 突破
+    118. tariff 關稅
+    119. ordeal 磨難
+    120. mutual 共同的
+    121. schoolboy slang 中學生用語
+    122. cosmetic surgery 整形手術
+    123. inquire詢問
+    124. restraint 冷靜
+    125. sunburned曬傷的
+    126. heed 注意
+    127. indulge 放縱
+    128. yield to 服從  
+    `;
+
+    function parseRawText(text) {
+        const lines = text.split('\n');
+        let currentUnit = "未分類";
+        const list = [];
+        let globalId = 1;
+
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+
+            if (line.startsWith('#')) {
+                currentUnit = line.replace(/^#+\s*/, '');
+                return;
+            }
+
+            let cleanLine = line.replace(/^\d+[\.\)]\s*/, '').trim();
+            const parts = cleanLine.split(/\s+/);
+
+            if (parts.length >= 2) {
+                list.push({
+                    id: globalId++,
+                    unit: currentUnit,
+                    word: parts[0],
+                    definition: parts.slice(1).join(' ')
+                });
+            }
+        });
+        return list;
+    }
+
+    const wordsList = parseRawText(rawText);
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        if (tabName === 'manage') {
+            document.querySelector('.tabs button:nth-child(1)').classList.add('active');
+            document.getElementById('tab-manage').classList.add('active');
+        } else if (tabName === 'export') {
+            document.querySelector('.tabs button:nth-child(2)').classList.add('active');
+            document.getElementById('tab-export').classList.add('active');
+            document.getElementById('jsonOutput').value = JSON.stringify(wordsList, null, 4);
+        }
+    }
+
+    function speak(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function renderList() {
+        const container = document.getElementById('wordListContainer');
+        const select = document.getElementById('unitJumpSelect');
+        document.getElementById('wordCount').innerText = wordsList.length;
+
+        container.innerHTML = '';
+        select.innerHTML = '<option value="">-- 請選擇單元 --</option>';
+
+        let grouped = {};
+        wordsList.forEach(item => {
+            if (!grouped[item.unit]) grouped[item.unit] = [];
+            grouped[item.unit].push(item);
+        });
+
+        for (let unitName in grouped) {
+            // 1. 建立單元標題（賦予 id 供選單跳轉用）
+            const unitHeader = document.createElement('div');
+            unitHeader.className = 'unit-title';
+            unitHeader.id = `unit-${CSS.escape(unitName)}`;
+            unitHeader.innerText = unitName;
+            container.appendChild(unitHeader);
+
+            // 2. 建立選單的單元選項
+            const option = document.createElement('option');
+            option.value = unitName;
+            option.text = unitName;
+            select.appendChild(option);
+
+            // 3. 渲染該單元底下的所有單字卡片
+            grouped[unitName].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'word-card';
+                div.innerHTML = `
+                    <div class="word-info">
+                        <h4>${item.word}</h4>
+                        <p><strong>釋義：</strong>${item.definition}</p>
+                    </div>
+                    <div>
+                        <button onclick="speak('${item.word}')">🔊 聽發音</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+    }
+
+    // 依照選擇的單元跳轉
+    function jumpToUnit(unitName) {
+        if (!unitName) return;
+        const targetElement = document.getElementById(`unit-${CSS.escape(unitName)}`);
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    function downloadJSON() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(wordsList, null, 4));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "words.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    renderList();
+</script>
+
+</body>
+</html>
