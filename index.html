@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>哲宇英文7000單測驗卷（單元跳轉版）</title>
+    <title>4000單字與片語美式發音系統</title>
     <style>
         :root {
             --primary-color: #4f46e5;
@@ -77,7 +77,6 @@
             margin-bottom: 20px;
         }
 
-        /* 下拉式單元跳轉列 */
         .quick-jump-bar {
             background: #eef2ff;
             padding: 15px;
@@ -165,17 +164,16 @@
 
 <div class="container">
     <header>
-        <h1>📚 哲宇英文7000單測驗卷</h1>
-        <p>依單元下拉跳轉，快速切換學習單元</p>
+        <h1>📚 4000單字與片語美式語音系統</h1>
+        <p>強制指定美式口音、智慧處理 sb./sth. 縮寫</p>
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('manage')">📝 單字清單與單元跳轉</button>
+        <button class="tab-btn active" onclick="switchTab('manage')">📝 單字與片語清單</button>
         <button class="tab-btn" onclick="switchTab('export')">🌐 GitHub JSON 專用區</button>
     </div>
 
     <div id="tab-manage" class="tab-content active">
-        <!-- 更改為單元跳轉選單 -->
         <div class="quick-jump-bar">
             <label for="unitJumpSelect" style="font-weight: 600; white-space: nowrap;">📂 選擇單元跳轉：</label>
             <select id="unitJumpSelect" onchange="jumpToUnit(this.value)">
@@ -184,7 +182,7 @@
         </div>
 
         <div class="card">
-            <h3 style="margin-top:0;">單字列表總覽 (<span id="wordCount">0</span> 個單字)</h3>
+            <h3 style="margin-top:0;">總覽清單 (<span id="wordCount">0</span> 筆)</h3>
             <div id="wordListContainer"></div>
         </div>
     </div>
@@ -201,9 +199,6 @@
 </div>
 
 <script>
-    // ==========================================
-    // 直接貼上您的多單元格式文字
-    // ==========================================
     const rawText = `
     # 4000單第一單元(unit 1)
     1. sheet 張
@@ -1828,15 +1823,20 @@
             }
 
             let cleanLine = line.replace(/^\d+[\.\)]\s*/, '').trim();
-            const parts = cleanLine.split(/\s+/);
-
-            if (parts.length >= 2) {
-                list.push({
-                    id: globalId++,
-                    unit: currentUnit,
-                    word: parts[0],
-                    definition: parts.slice(1).join(' ')
-                });
+            let match = cleanLine.match(/^([a-zA-Z\s\.\/]+)([\s\S]*)$/);
+            
+            if (match) {
+                let word = match[1].trim();
+                let definition = match[2].trim();
+                
+                if (word) {
+                    list.push({
+                        id: globalId++,
+                        unit: currentUnit,
+                        word: word,
+                        definition: definition || ""
+                    });
+                }
             }
         });
         return list;
@@ -1858,14 +1858,41 @@
         }
     }
 
+    // 強制指定美式口音的智慧發音函式
     function speak(text) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
+            
+            let processedText = text
+                .replace(/\bsb\.?\b/gi, 'somebody')
+                .replace(/\bsth\.?\b/gi, 'something')
+                .replace(/…/g, '')
+                .trim();
+
+            const utterance = new SpeechSynthesisUtterance(processedText);
+            
+            // 強制設定為美式英文口音
             utterance.lang = 'en-US';
-            utterance.rate = 0.9;
+            utterance.rate = 0.85; // 語速稍微調慢
+
+            // 自動尋找裝置中最好的美式語音（Voice）
+            const voices = window.speechSynthesis.getVoices();
+            const usVoice = voices.find(voice => voice.lang === 'en-US' || voice.lang === 'en_US');
+            if (usVoice) {
+                utterance.voice = usVoice;
+            }
+            
             window.speechSynthesis.speak(utterance);
+        } else {
+            alert('您的瀏覽器不支援語音功能');
         }
+    }
+
+    // 某些瀏覽器需要預先載入語音清單
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.getVoices();
+        };
     }
 
     function renderList() {
@@ -1883,30 +1910,29 @@
         });
 
         for (let unitName in grouped) {
-            // 1. 建立單元標題（賦予 id 供選單跳轉用）
             const unitHeader = document.createElement('div');
             unitHeader.className = 'unit-title';
             unitHeader.id = `unit-${CSS.escape(unitName)}`;
             unitHeader.innerText = unitName;
             container.appendChild(unitHeader);
 
-            // 2. 建立選單的單元選項
             const option = document.createElement('option');
             option.value = unitName;
             option.text = unitName;
             select.appendChild(option);
 
-            // 3. 渲染該單元底下的所有單字卡片
             grouped[unitName].forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'word-card';
+                const safeWord = item.word.replace(/'/g, "\\'");
+                
                 div.innerHTML = `
                     <div class="word-info">
                         <h4>${item.word}</h4>
                         <p><strong>釋義：</strong>${item.definition}</p>
                     </div>
                     <div>
-                        <button onclick="speak('${item.word}')">🔊 聽發音</button>
+                        <button onclick="speak('${safeWord}')">🔊 聽發音</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1914,7 +1940,6 @@
         }
     }
 
-    // 依照選擇的單元跳轉
     function jumpToUnit(unitName) {
         if (!unitName) return;
         const targetElement = document.getElementById(`unit-${CSS.escape(unitName)}`);
