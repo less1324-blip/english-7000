@@ -3,203 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4000單字與片語美式發音系統</title>
+    <title>單字發音練習器 (完整升級版)</title>
     <style>
-        :root {
-            --primary-color: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --border-color: #e2e8f0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        header h1 {
-            margin: 0 0 8px 0;
-            color: var(--primary-color);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-
-        .tab-btn {
-            background: none;
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f7f6; }
+        h2 { color: #333; text-align: center; }
+        textarea { width: 100%; height: 120px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; resize: vertical; box-sizing: border-box; }
+        .btn-generate { display: block; width: 100%; padding: 12px; margin-top: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        .btn-generate:hover { background-color: #45a049; }
+        select { width: 100%; padding: 12px; margin-top: 20px; border-radius: 8px; font-size: 16px; border: 1px solid #ccc; background-color: white; cursor: pointer; }
+        .word-item { display: flex; justify-content: space-between; background: white; padding: 15px; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); align-items: center; }
+        .text-part { font-size: 16px; color: #333; }
+        .play-btn { padding: 8px 15px; cursor: pointer; background-color: #008CBA; color: white; border: none; border-radius: 5px; font-size: 14px; transition: 0.3s; }
+        .play-btn:hover { background-color: #007399; }
+        
+        /* 這裡新增：返回最上層按鈕的樣式 */
+        #backToTopBtn {
+            display: none; /* 預設先隱藏 */
+            position: fixed; /* 固定在畫面上 */
+            bottom: 20px; /* 距離底部 20px */
+            right: 20px; /* 距離右側 20px */
+            z-index: 99;
+            font-size: 24px;
             border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            color: #64748b;
-            border-radius: 6px;
-        }
-
-        .tab-btn.active {
-            background-color: var(--primary-color);
+            outline: none;
+            background-color: #ff9800;
             color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .quick-jump-bar {
-            background: #eef2ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid #c7d2fe;
-        }
-
-        .quick-jump-bar select {
-            flex: 1;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: #fff;
             cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 50px; /* 圓角設計 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: 0.3s;
         }
-
-        .unit-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #1e293b;
-            margin: 30px 0 10px 0;
-            padding-bottom: 6px;
-            border-bottom: 2px solid var(--primary-color);
-        }
-
-        .word-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-bottom: 8px;
-            background: #fff;
-            transition: border-color 0.3s;
-        }
-
-        .word-info h4 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
-            color: var(--primary-color);
-        }
-
-        .word-info p {
-            margin: 0;
-            color: #475569;
-            font-size: 14px;
-        }
-
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .json-box {
-            font-family: monospace;
-            height: 300px;
-            background: #0f172a;
-            color: #38bdf8;
-            padding: 15px;
-            border-radius: 6px;
-            font-size: 13px;
-            width: 100%;
-            box-sizing: border-box;
-            resize: vertical;
+        #backToTopBtn:hover {
+            background-color: #e68a00;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>📚 4000單字與片語美式語音系統</h1>
-        <p>強制指定美式口音、智慧處理 sb./sth. 縮寫</p>
-    </header>
-
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('manage')">📝 單字與片語清單</button>
-        <button class="tab-btn" onclick="switchTab('export')">🌐 GitHub JSON 專用區</button>
-    </div>
-
-    <div id="tab-manage" class="tab-content active">
-        <div class="quick-jump-bar">
-            <label for="unitJumpSelect" style="font-weight: 600; white-space: nowrap;">📂 選擇單元跳轉：</label>
-            <select id="unitJumpSelect" onchange="jumpToUnit(this.value)">
-                <option value="">-- 請選擇單元 --</option>
-            </select>
-        </div>
-
-        <div class="card">
-            <h3 style="margin-top:0;">總覽清單 (<span id="wordCount">0</span> 筆)</h3>
-            <div id="wordListContainer"></div>
-        </div>
-    </div>
-
-    <div id="tab-export" class="tab-content">
-        <div class="card">
-            <h3>GitHub JSON 格式內容</h3>
-            <textarea id="jsonOutput" class="json-box" readonly></textarea>
-            <div style="margin-top: 15px;">
-                <button onclick="downloadJSON()">下載 words.json 檔案</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const rawText = `
+    <h2>🔊 單字發音練習器</h2>
+    <p>點擊產生列表，開始複習單字！</p>
+    
+    <!-- 你的所有單字都已放進預設框框中 -->
+    <textarea id="wordInput">
     # 4000單第一單元(unit 1)
     1. sheet 張
     2. loaf 條
@@ -2186,7 +2032,7 @@
     80. call upon  號召、訪問
     81. extremes  極端(行為)
     82. be relieved of 對…感到寬慰
-    83 by means of 藉由
+    83. by means of 藉由
     84. in regard to 關於
     85. valuable 貴重的
     86. with a view to 為了…目的
@@ -2534,7 +2380,7 @@
     40. profession 專業
     41. invest 投資
     42. cushion靠墊
-    43 curl 捲毛
+    43. curl 捲毛
     44. remark 評論
     45. discuss討論
     46. mayor 市長
@@ -2903,6 +2749,169 @@
     101.  ward 病房
     102.  intuition 直覺
 
+    # 7000單第三單元(unit 3)
+    1. addict 成癮者、沈迷
+    2. suffocate 使窒息、透不過氣
+    3. bruise 瘀傷、碰傷
+    4. button 按鈕、扣子
+    5. overflow 溢出、滿出
+    6. preview 預覽、預告
+    7. mingle 混合、交往
+    8. attack 攻擊
+    9. especially 特別、尤其
+    10. menace 威脅、恐嚇
+    11. plague 瘟疫、折磨
+    12. savage 野蠻的、殘酷的
+    13. spotlight 聚光燈、焦點
+    14. admiration 欽佩、讚賞
+    15. terrific 極好的、可怕的
+    16. mock 嘲弄、模擬的
+    17. quack 庸醫、鴨叫聲
+    18. ample 充裕的、寬敞的
+    19. perceptible 可察覺的
+    20. longitude 經度
+    21. occurrence 發生、事件
+    22. mortality 死亡率
+    23. immortality 不朽、永生
+    24. lament 哀悼、悲嘆
+    25. frailty 脆弱、弱點
+    26. human beings 人類
+    27. feasibly 可行地
+    28. anonymously 匿名地
+    29. mischievously 惡作劇地、淘氣地
+    30. eloquently 雄辯地、流利地
+    31. audience 觀眾、聽眾
+    32. attentively 專心地
+    33. sprawl 蔓延、四肢攤開坐臥
+    34. dwell 居住、棲息
+    35. strand 擱淺、線
+    36. hover 盤旋、徘徊
+    37. sunbathe 做日光浴
+    38. tan 晒黑、黃褐色
+    39. accelerate 加速
+    40. corrupt 腐敗的、墮落的
+    41. ecstasy 狂喜
+    42. immunity 免疫力、豁免權
+    43. major 主要的、主修
+    44. utility 效用、公用事業
+    45. controversy 爭議
+    46. option 選項、選擇
+    47. rural area 農村地區、鄉村
+    48. drawback 缺點、不利條件
+    49. public transportation 公共運輸、大眾運輸
+    50. enhance 提高、增強
+    51. enrich 豐富、充實
+    52. enlightenment 啟蒙、開悟
+    53. endurance 耐力、持久力
+    54. Mr. Everest 聖母峰命名者
+    55. strength 力量、實力
+    56. decline 下降、衰退
+    57. interest rate 利率
+    58. economy 經濟
+    59. epidemic 流行病、傳染性的
+    60. episode 插曲、劇集
+    61. equator 赤道
+    62. equivalent 相等的、等同物
+    63. nomination 提名
+    64. rotation 旋轉、輪流
+    65. complement 補充、補足物
+    66. rhetoric 修辭、雄辯
+    67. politician 政治人物
+    68. stylish 時髦的、有型的
+    69. surplus 過剩、盈餘
+    70. aggressive 積極的、侵略性的
+    71. crucial 關鍵的、至關重要的
+    72. characterize 具有……的特徵、刻畫
+    73. furniture 家具
+    74. surrounding 周圍的、環境
+    75. get acquainted with 認識、熟悉
+    76. quest 探索、尋求
+    77. roam 漫遊、閒逛
+    78. reign 統治、支配
+    79. peek 偷看、窺視
+    80. championship 冠軍頭銜、錦標賽
+    81. award 獎項、授予
+    82. anthem 國歌、頌歌
+    83. curriculum 課程
+    84. latitude 緯度、自由度
+    85. masterpiece 傑作、名著
+    86. victim 受害者
+    87. await 等待
+    88. ambulance 救護車
+    89. isle 小島
+    90. myth 神話、迷思
+    91. agony 極度痛苦
+    92. paradox 悖論、矛盾
+    93. patch 補丁、小塊土地
+    94. badge 徽章、標誌
+    95. pocketbook 皮夾、記事本
+    96. mash 搗碎、糊狀物
+    97. violate 違反、侵犯
+    98. launch 發射、發起
+    99. rebellious 反叛的、倔強的
+    100. troop 部隊、群集
+    101. stake menace 賭注威脅
+    102. pillar 柱子、支柱
+    103. assault 攻擊、襲擊
+    104. bleach 漂白、漂白劑
+    105. fabric 布料、織物
+    106. skeleton 骨骼、骨架
+    107. velvet 天鵝絨、絲絨
+    108. stain 汙漬、染色
+    109. off the rail 脫軌、行為失常
+    110. in the nude 一絲不掛、裸體
+    111. in mourning 服喪中、哀悼中
+    112. without parallel 無與倫比的
+    113. highly respected 備受尊敬的
+    114. kingdom 王國
+    115. resort 度假勝地、訴諸
+    116. mild weather 溫和的天氣
+    117. qualified for 有資格獲得、勝任
+    118. persistent in 堅持不懈於
+    119. overflowing with 充滿著、溢出
+    120. notable for 以……著稱、顯著的
+    121. get nowhere 一事無成、毫無進展
+    122. keep a low profile 保持低調
+    123. preach the Gospel 傳福音
+    124. recruit personnel 招募人員
+    125. unemployment 失業、失業率
+    126. in league with 與……勾結、結盟
+    127. as a token of 作為……的象徵
+    128. out of proportion to 與……不成比例
+    129. exclusive of 不包括在內、排外
+    130. minor error 小錯誤、瑕疵
+    131. fiddle with 瞎弄、亂動
+    132. flake off 片狀剝落、脫落
+    133. flip through 翻閱、瀏覽
+    134. falter out 結結巴巴地說出
+    135. scrape through 勉強通過、艱難度過
+    136. bellboy 行李員、飯店服務生
+    137. thrust at 朝……刺去、猛推
+    138. fume at 生氣、發怒於
+    139. resort to 訴諸、求助於
+    140. elegant tobacco 優雅菸草
+    141. advertisement 廣告
+    142. convert to 轉變為、改皈（宗教）
+    143. seduce into 誘惑而陷入、引誘
+    144. derive from 源自、衍生於
+    145. oppose to 反對
+    146. press 按壓、新聞界、出版社
+    147. courtroom 法庭、審判室
+    148. at stake 處於危險關頭、攸關生死
+    149. in reverse 倒退、相反地
+    150. in session 開會中、開庭中
+    151. in sequence 按順序、連續
+    152. blot out 塗掉、遮蔽、掩蓋
+    153. go astray 迷路、誤入歧途
+    154. mow the lawn 修剪草坪
+    155. get a patent 取得專利
+    156. authority 權威、官方、權力
+    157. dedication 奉獻、專心
+    158. on behalf of 代表
+    159. in quest of 尋求、探索
+    160. under the veil of 在……的掩護下
+    161. on the threshold of 在……的門檻上、即將開始
+
     # 7000單第四單元 (unit 4)
     1. keep one’s word 兌現承諾
     2. reckless 魯莽的
@@ -3032,161 +3041,748 @@
     126. heed 注意
     127. indulge 放縱
     128. yield to 服從  
-    `;
 
-    function parseRawText(text) {
-        const lines = text.split('\n');
-        let currentUnit = "未分類";
-        const list = [];
-        let globalId = 1;
+    # 7000單第五單元(unit 5)
+    1. particle 粒子、微粒
+    2. province 省、行政區
+    3. plantation 種植園、大農場
+    4. paradox 悖論、矛盾
+    5. exhaust 耗盡、排氣管
+    6. undergo 經歷、遭受
+    7. surgery 手術
+    8. stomach 胃、腹部
+    9. fabulous 極好的、傳說中的
+    10. frail 脆弱的、虛弱的
+    11. finite 有限的
+    12. formidable 可怕的、艱鉅的
+    13. sweater 毛衣
+    14. shiver 發抖、顫抖
+    15. massage 按摩
+    16. notify 通知、告知
+    17. penetrate 穿透、滲透
+    18. resort 度假勝地、訴諸
+    19. soldier 軍人、士兵
+    20. off duty 下班、休班
+    21. prefer 更喜歡、偏好
+    22. military 軍事的、軍隊
+    23. uniform 制服、一致的
+    24. marginal 邊緣的、微小的
+    25. civilian 平民的、平民
+    26. monstrous 巨大的、駭人聽聞的
+    27. civic 市民的、公民的
+    28. undertake 承擔、從事
+    29. saddle 馬鞍、鞍部
+    30. yield 產出、屈服
+    31. soak 浸泡、濕透
+    32. responsibility 責任
+    33. friction 摩擦、衝突
+    34. fleet 艦隊、車隊
+    35. fracture 骨折、破裂
+    36. fluid 流體、流動的
+    37. rubber 橡膠、橡皮擦
+    38. surface 表面
+    39. radius 半徑
+    40. resume 履歷、重新開始
+    41. reminder 提醒物、提示
+    42. resentment 憤恨、怨恨
+    43. conceit 自負、自滿
+    44. label 標籤、標示
+    45. bleak 荒涼的、暗淡的
+    46. fragile 易碎的、脆弱的
+    47. alcoholic 含酒精的、酗酒者
+    48. highlight 強調、最精彩的部分
+    49. inference 推論、推斷
+    50. expiration 期滿、過期
+    51. rivalry 競爭、對立
+    52. sanction 制裁、批准
+    53. version 版本、譯本
+    54. seminar 研討會
+    55. vision 視力、願景
+    56. boost 提高、促進
+    57. utilize 利用
+    58. refrain 節制、副歌
+    59. abuse 濫用、虐待
+    60. nuclear 核子的、原子核的
+    61. peaceful 和平的
+    62. purpose 目的、意圖
+    63. depression 憂鬱、經濟蕭條
+    64. plague 瘟疫、折磨
+    65. muse 沉思、靈感繆斯
+    66. reap 收割、收穫
+    67. linger 逗留、持續
+    68. buddhist 佛教徒、佛教的
+    69. worship 崇拜、敬奉
+    70. sacred 神聖的
+    71. sacrificed 犧牲的
+    72. emphatic 強調的、堅決的
+    73. pathetic 可憐的、悲慘的
+    74. elevate 提升、舉起
+    75. nominate 提名
+    76. prop 支柱、支撐
+    77. conceive 構想、懷孕
+    78. atomic bomb 原子彈
+    79. amiable 和藹可親的
+    80. glamorous 富有魅力的
+    81. hospitable 好客的
+    82. graphic 圖解的、生動的
+    83. hostile 敵對的、不友善的
+    84. clasp 緊握、扣環
+    85. erect 直立的、建造
+    86. indulge 縱容、沉溺
+    87. hover 盤旋、徘徊
+    88. permissible 允許的
+    89. parallel 平行的、相類似的
+    90. perceptible 可察覺的
+    91. provincial 省立的、狹隘的
+    92. intelligence 智慧、情報
+    93. reverse 相反的、倒轉
+    94. stride 大步走、進展
+    95. dash 急奔、破折號
+    96. commute 通勤
+    97. suburb 郊區
+    98. distance 距離
+    99. radical 激進的、根本的
+    100. rhetoric 修辭、雄辯
+    101. simultaneous 同時的
+    102. versatile 多才多藝的、多用途的
+    103. screwdriver 螺絲起子
+    104. opponent 對手、敵手
+    105. liberty 自由
+    106. recommend 推薦、建議
+    107. condemn 譴責、判刑
+    108. inquire 詢問、查究
+    109. salute 行禮、致敬
+    110. make a plea 提出懇求、辯護
+    111. take the plunge 決定冒險、放手一搏
+    112. break a pledge 違背誓言
+    113. realize one's potential 發揮潛力、實現價值
+    114. peer at 凝視、端詳
+    115. prick up 豎起（耳朵）
+    116. reel in 捲起、拉近、吸引
+    117. plow into 撞進、猛撞
+    118. go astray 迷路、誤入歧途
+    119. seek counsel 尋求諮商、請教
+    120. poke around 四處搜尋、打探
+    121. mount up 逐漸增加、上升
+    122. hedge against 規避（風險）、防範
+    123. make modifications to 對……進行修改
+    124. overflow with 充滿著、溢出
+    125. patch up 修補、平息（爭端）
+    126. be accustomed to 習慣於
+    127. be harnessed to 利用、被套上
+    128. be hostile to 對……敵對的、不友好的
+    129. be akin to 與……有親緣關係的、類似的
+    130. jeer at 嘲笑、譏諷
+    131. impose on 強加於、利用
+    132. convert into 轉變為、改造成
+    133. be qualified for 有資格的、勝任的
+    134. make a great side 組成優秀的團隊（或陣容）
+    135. run riot 放縱、胡鬧、四處蔓延
+    136. talk rubbish 胡言亂語、說廢話
+    137. sneak away 偷偷溜走
+    138. be abundant in 豐富的、富含……的
+    139. be saddled with 負擔著、被強加……的
+    140. be nominated for 被提名為……
+    141. be delegated to 被委派給、授權給
+    142. be indispensable to 不可或缺的
+    143. in parallel with 與……平行、同時進行
+    144. in the chair at 主持（會議等）、擔任主席
+    145. be scornful of 輕蔑的、鄙視的
+    146. be gobbled up 被吞沒、被狼吞虎咽地吃光
+    147. clung to 堅持、依附
+    148. scrambled for 爭奪、倉促搶購
+    149. be notified of 被通知、獲悉
 
-        lines.forEach(line => {
-            line = line.trim();
-            if (!line) return;
+    # 7000單第六單元(unit 6)
+    1. eclipse 日食、黯然失色
+    2. incense 香、焚香
+    3. nostril 鼻孔
+    4. crater 火山口、坑
+    5. incidental 附帶的、偶然的
+    6. innovative 創新的
+    7. implicit 含蓄的、暗含的
+    8. explicit 詳盡的、明確的
+    9. Chicken pox 水痘
+    10. instead of 代替、而不是
+    11. fascinate 著迷、深深吸引
+    12. migrant 移民、移居者
+    13. limp 跛行、軟弱的
+    14. infectious 具傳染性的
+    15. newscast 新聞廣播
+    16. prophecy 預言
+    17. molecule 分子
+    18. procession 列隊、遊行
+    19. exminjte 檢查
+    20. muse 沉思、靈感繆斯
+    21. reckon 估計、認為
+    22. ponder 沉思、考慮
+    23. poke 戳、捅
+    24. illusive 幻覺的、迷惑人的
+    25. ingenious 巧妙的、機智的
+    26. insightful 有深刻見解的
+    27. contagious 接觸傳染的、具感染力的
+    28. audience 觀眾、聽眾
+    29. hygiene 衛生
+    30. hemisphere 半球
+    31. heritage 遺產、傳統
+    32. hormone 荷爾蒙、激素
+    33. throb 跳動、抽痛
+    34. shed 流出、脫落、發散
+    35. skim 略讀、掠過
+    36. shudder 發抖、顫抖
+    37. infant 嬰兒
+    38. injection 注射
+    39. implement 實施、工具
+    40. illumination 照明、啟發
+    41. incentive 激勵、動機
+    42. illness 疾病
+    43. infection 感染
+    44. publish 出版、發布
+    45. milestone 里程碑
+    46. profile 簡介、輪廓
+    47. parlor 客廳、店鋪
+    48. ratio 比率
+    49. legislation 立法、法律
+    50. currency 貨幣、流通
+    51. mount 登上、增加
+    52. nucleus 核心、原子核
+    53. defeat 擊敗、失敗
+    54. enemy 敵人
+    55. seminar 研討會
+    56. transcript 成績單、抄本
+    57. tactics 戰術、策略
+    58. ordeals 嚴峻考驗、磨難
+    59. humiliate 羞辱、使丟臉
+    60. hunch 直覺、預感
+    61. hurdle 欄架、障礙
+    62. honorary 榮譽的
+    63. skeleton 骨骼、骨架
+    64. lizard 蜥蜴
+    65. gospel 福音
+    66. vacuum 真空、吸塵
+    67. scandal 醜聞
+    68. static 靜態的、靜電
+    69. stereotype 刻板印象
+    70. symmetry 對稱
+    71. pickpocket 扒手
+    72. red-handed 當場抓獲的
+    73. convict 定罪、囚犯
+    74. update 更新
+    75. tackle 處理、對付
+    76. preach 講道、說教
+    77. nomination 提名
+    78. recommendation 推薦
+    79. manifestation 表現、顯示
+    80. qualification 資格、條件
+    81. ornament 裝飾品
+    82. mustard 芥末
+    83. contempt 輕視、蔑視
+    84. articulation 清晰發音、表達
+    85. kindergarten 幼兒園
+    86. playground 遊樂場、操場
+    87. comprise 包含、由……組成
+    88. supervise 監督、管理
+    89. prescribe 開處方、規定
+    90. collide 碰撞、衝突
+    91. hostility 敵意、敵對行動
+    92. poverty 貧窮
+    93. exist 存在
+    94. excel 勝過、表現優秀
+    95. modify 修改、更改
+    96. rally 集會、重整旗鼓
+    97. prevail 流行、盛行、戰勝
+    98. dispel the notion of 消除……的觀念
+    99. take the precaution of 採取……的預防措施
+    100. suffer a plague of 遭受……肆虐（或禍害）
+    101. reap the benefit of 獲得……的好處
+    102. insomnia 失眠
+    103. fall prey to 成為……的犧牲品、受害
+    104. take an optimistic view of 對……抱持樂觀的看法
+    105. keep an oath of 遵守……的誓言
+    106. give free rein to 給予完全的自由、縱容
+    107. elevate one's spirits 振奮某人的精神、鼓舞
+    108. boost his ego 提升他的自尊心、自我
+    109. poke sb. in the ribs 用手肘戳某人的肋骨
+    110. prick one's conscience 良心責備、內疚
+    111. intent on 專心於、一心想
+    112. induce to 誘導某人做……
+    113. inherit from 從……繼承
+    114. initiate into 使加入、傳授……的初步知識
+    115. lessen the risk of 降低……的風險
+    116. league with 與……結盟、勾結
+    117. enjoy great latitude in 在……享有很大的自由度
+    118. lodge a complaint to 向……提出申訴（或抱怨）
+    119. ill-treated 受虐待的
+    120. secretary 祕書、部長
+    121. make a savage attack 發動猛烈（或野蠻）的攻擊
+    122. make a zip code 製作郵遞區號
+    123. make a low yield 產出低收益、低產量
+    124. make a solemn pledge 發下嚴誓、作出莊嚴承諾
+    125. alibi 不在場證明、藉口
+    126. be involved in 捲入、參與
+    127. murder 謀殺、兇殺
+    128. in the spotlight 受到矚目、在聚光燈下
+    129. in storage 儲存中、存放著
+    130. out of bondage 擺脫束縛、脫離奴役
+    131. off the scent 失去線索、被甩掉
+    132. fragile 易碎的、脆弱的
+    133. with amusement 覺得好笑地、娛樂地
+    134. to one's astonishment 令某人驚訝的是
+    135. to one's heart's content 盡情地、心滿意足地
+    136. with caution 小心翼翼地、謹慎地
+    137. beggar 乞丐
+    138. out of compassion 基於同情、出於慈悲
+    139. for external use 外用、限外用
+    140. by intuition 憑直覺
+    141. with a limp 跛著腳地
+    142. be slammed by 遭到……猛烈批評（或抨擊）
+    143. be converted to 被轉變為、改皈
+    144. be submitted to 被提交給、呈遞給
+    145. be wary of 對……保持警戒、提防
 
-            if (line.startsWith('#')) {
-                currentUnit = line.replace(/^#+\s*/, '');
+    # 7000單第七單元(unit 7)
+    1. recommend 推薦、建議
+    2. caution 警告、謹慎
+    3. prompt 促使、迅速的
+    4. revive 復活、復甦
+    5. puppet 木偶、傀儡
+    6. oasis 綠洲
+    7. relic 遺跡、遺物
+    8. myth 神話、迷思
+    9. castle 城堡
+    10. century 世紀
+    11. optimism 樂觀、樂觀主義
+    12. resentment 憤恨、怨恨
+    13. mileage 里程數、哩程
+    14. patent 專利
+    15. retirement 退休
+    16. community 社區、社群
+    17. senior citizen 老年人、長者
+    18. miser 吝嗇鬼、守財奴
+    19. playwright 劇作家
+    20. rascal 流氓、淘氣鬼
+    21. resident 居民
+    22. sportsman 運動員
+    23. contest 比賽、競賽
+    24. peddler 小販、行商
+    25. rival 競爭者、對手
+    26. mistress 情婦、女主人
+    27. outsider 外人、局外人
+    28. honesty 誠實、正直
+    29. inventory 庫存、存貨
+    30. integrity 正直、完整性
+    31. integration 整合、融合
+    32. intervention 干預、介入
+    33. bungee jumping 高空彈跳
+    34. liberate 解放、釋放
+    35. propel 推進、驅使
+    36. mobilize 動員、調動
+    37. intimidate 恐嚇、威脅
+    38. height 高度、海拔
+    39. ingenious 巧妙的、機智的
+    40. genetically 基因地、遺傳上
+    41. radiantly 光芒四射地、喜氣洋洋地
+    42. indignantly 憤憤不平地、憤慨地
+    43. housemaid 女僕、女傭
+    44. radical 激進的、根本的
+    45. drastic 激烈的、極端的
+    46. liable 易於……的、有責任的
+    47. invaluable 無價的、極具價值的
+    48. literacy 識字率、讀寫能力
+    49. linguistics 語言學
+    50. longevity 長壽、長命
+    51. lunacy 瘋狂、愚蠢行為
+    52. ward 病房、受監護人
+    53. aisle 通道、走道
+    54. wound 傷口、傷害
+    55. compass 指南針、羅盤
+    56. specimen 標本、樣本
+    57. holly 冬青（植物）
+    58. glacier 冰河、冰川
+    59. incense 香、焚香
+    60. particle 粒子、微粒
+    61. wreath 花環、花圈
+    62. gravity 重力、嚴重性
+    63. outer space 外太空
+    64. sportsman 運動員
+    65. track 軌道、足跡、徑賽
+    66. badge 徽章、標誌
+    67. sprint 短跑、衝刺
+    68. combat 戰鬥、格鬥
+    69. relay 接力賽、轉發
+    70. federal 聯邦的
+    71. income 收入、所得
+    72. competition 競爭、競賽
+    73. approach 接近、方法、途徑
+    74. drought 乾旱
+    75. lieutenant 中尉、副官
+    76. renaissance 文藝復興、復興
+    77. sponsorship 贊助、資助
+    78. merger 合併、企業併購
+    79. patriot 愛國者
+    80. delegate 代表、委派
+    81. traitor 叛徒、背叛者
+    82. detergent 洗滌劑、洗衣粉
+    83. mechanic 機械工、技工
+    84. sergeant 中士、警長
+    85. bandit 土匪、強盜
+    86. dispense 分配、免除
+    87. flourish 繁榮、興旺
+    88. inherit 繼承
+    89. penetrate 穿透、滲透
+    90. toilet paper 衛生紙
+    91. ecology 生態、生態學
+    92. destiny 命運、天命
+    93. gravity 重力、嚴重性
+    94. tuition 學費、教學
+    95. naive 天真的、幼稚的
+    96. hoarse 嘶啞的、沙啞的
+    97. transparent 透明的、顯而易見的
+    98. distinctive 獨特的、有特色的
+    99. freedom 自由
+    100. countryman 同胞、鄉下人
+    101. out of proportion 不成比例、過大
+    102. in perspective 理性地、客觀地、有遠見地
+    103. without rival 無與倫比、沒有對手
+    104. on the shy 略顯害羞、稍嫌不足（或偏少）
+    105. invest 投資
+    106. a veil of 一層……的掩護（或面紗）
+    107. an ounce of 一絲、微量的
+    108. a swarm of 一大群（昆蟲等）
+    109. a reel of 一卷……
+    110. pearl 珍珠
+    111. compensate for 補償、彌補
+    112. make the differentiation between 做出……之間的區分
+    113. break off an alliance with 與……斷絕同盟關係
+    114. remain mute about 對……保持沉默、不予置評
+    115. be resolute in making decisions 在做決定時堅決果斷
+    116. be phased out 逐步淘汰、分階段停用
+    117. be caught in a dilemma 陷入進退兩難的困境
+    118. be presumed innocent 被推定為無罪
+    119. be enrolled in 註冊就讀於、加入
+    120. be smuggled into 被走私偷運進……
+    121. be renowned for 以……聞名
+    122. be discharged from 從……出院（或退伍、釋放）
+    123. nursing home 療養院、養老院
+    124. scrap a living 勉強糊口
+    125. throb with pain 陣痛、劇痛抽動
+    126. take a vow 發誓
+    127. break into a trot 突然小跑步起來
+    128. by wholesale 以批發方式、大批地
+    129. to shreds 碎爛、破爛不堪
+    130. in snatches 零星地、斷斷續續地
+    131. in abundance 豐富、充裕
+    132. in agony 痛苦不堪、極度痛苦
+    133. in contempt 輕視、蔑視、藐視法庭
+    134. in torment 折磨中、痛苦中
+    135. in stock 有現貨、庫存中
+    136. in the midst of 在……之中
+    137. under the patronage of 在……的贊助（或庇護）下
+    138. designate for 指定用於、指派
+    139. prompt by 受……驅使
+    140. dispense with 免除、省去、不用
+    141. fall heir to 成為……的繼承人、繼承
+    142. idle away 虛度、荒廢（時間）
+    143. patch up 修補、平息（爭端）
+    144. luxury 奢侈、豪華
+    145. relief 救濟、慰藉、解除
+
+    # 7000單第八單元(unit 8)
+    1. medieval 中世紀的
+    2. premature 過早的、不成熟的
+    3. thriller 驚悚小說、驚悚片
+    4. obscure 默默無聞的、晦澀的
+    5. renowned 著名的、有聲譽的
+    6. convict 定罪、囚犯
+    7. suspect 嫌疑犯、懷疑
+    8. offering 祭品、提供物、作品
+    9. witness 目擊者、見證
+    10. monopoly 壟斷、專賣
+    11. query 疑問、查詢
+    12. operation 手術、運作、行動
+    13. nourish 滋養、懷有（希望等）
+    14. ponder 沉思、考慮
+    15. poach 偷獵、水煮（蛋）
+    16. narrate 敘述、講述
+    17. weigh 稱重、權衡
+    18. request 請求、要求
+    19. executive 主管、行政人員
+    20. feel obliged to 感到有義務去做……
+    21. relay 轉發、接力賽、轉播
+    22. recur 重現、再次發生
+    23. refund 退款
+    24. ravage 毀壞、掠奪
+    25. monk 修道士、僧侶
+    26. gain insight 獲得見解、深入了解
+    27. religious belief 宗教信仰
+    28. narration 敘述、旁白
+    29. prescription 處方、藥方
+    30. obligation 義務、責任
+    31. meditation 冥想、沉思
+    32. otherwise 否則、不同地
+    33. Mandarin 官話、普通話、柑橘
+    34. drape 垂掛、披上、窗簾
+    35. dialect 方言
+    36. disposal 處理、清除
+    37. dice 骰子、切丁
+    38. discriminate 歧視、辨別
+    39. expert 專家、內行的
+    40. disperse 分散、驅散
+    41. original 原創的、最初的
+    42. discard 拋棄、丟棄
+    43. disregard 漠視、忽視
+    44. naive 天真的、幼稚的
+    45. tentative 試探性的、暫時的
+    46. extensive 廣泛的、大量的
+    47. distinctive 獨特的、有特色的
+    48. destiny 命運、天命
+    49. density 密度
+    50. decay 腐朽、衰退
+    51. delegation 代表團、委派
+    52. tradition 傳統
+    53. distress 悲痛、危難
+    54. assault 攻擊、襲擊
+    55. mingle 混合、交往
+    56. plunge 投入、暴跌
+    57. whisky 威士忌
+    58. dizziness 頭暈、眩暈
+    59. symmetry 對稱
+    60. sanction 制裁、批准
+    61. sensation 感覺、轟動
+    62. supplement 補充品、增補
+    63. constant 持續不斷的、常數
+    64. express 表達、快遞
+    65. suppression 鎮壓、抑制
+    66. exploitation 開發、剝削
+    67. conjunction 結合、連接詞
+    68. correspondence 通信、對應
+    69. tuck 把……塞進、收褶
+    70. title 標題、頭銜
+    71. distract 分心、轉移注意力
+    72. abuse 濫用、虐待
+    73. skeleton 骨骼、骨架
+    74. nutrient 營養素、滋養物
+    75. sequence 順序、序列
+    76. skull 頭骨、顱骨
+    77. dust 灰塵、撒粉
+    78. sprinkle 撒、灑
+    79. whisk 攪拌器、拂拭、快速移動
+    80. attain 達到、獲得
+    81. slash 砍傷、大幅削減
+    82. abbreviation 縮寫、簡稱
+    83. shortage 短缺、不足
+    84. expedition 遠征、探險
+    85. monotony 單調、千篇一律
+    86. prospective 未來的、預期的
+    87. slang 俚語
+    88. successive 連續的、相繼的
+    89. aboriginal 原住民的、本土的
+    90. inhabitant 居民、棲息動物
+    91. false 錯誤的、虛偽的
+    92. undergo 經歷、遭受
+    93. soothe 安慰、緩和
+    94. accelerate 加速
+    95. irritate 激怒、使發炎
+    96. decline 下降、衰退
+    97. manufacture 製造、加工
+    98. mischievously 惡作劇地、淘氣地
+    99. accordingly 因此、相應地
+    100. theoretically 理論上地
+    101. viciously 惡毒地、兇惡地
+    102. ought to 應該
+    103. staff 全體員工、拐杖
+    104. emigrant 移居國外者、移民
+    105. accessible 易接近的、可使用的
+    106. finite 有限的
+    107. spontaneous 自發的、自然發生的
+    108. philosopher 哲學家
+    109. contemplation 沉思、默想
+    110. in combat with 與……交戰、對抗
+    111. under the banner of 打着……的旗號、在……的標誌下
+    112. in quest of 尋求、探索
+    113. within the realm of 在……的領域內
+    114. aggressive 積極進取的、侵略性的
+    115. rebel 反叛者、反抗
+    116. terrorism 恐怖主義
+    117. achieve 實現、取得
+    118. clung to 堅持、依附
+    119. intrude on 侵入、闖入、打擾
+    120. enroll in 註冊入學、參加
+    121. resort to 訴諸、求助於
+    122. distort one's statement 扭曲某人的言論
+    123. make discreet inquiry 進行謹慎的打探（或詢問）
+    124. tolerate diverse opinions 容忍多元的意見
+    125. lost one's eyesight 失去視力（失明）
+    126. be exploited by 被……剝削（或利用）
+    127. be evolved from 從……演變而來
+    128. be escalated into 被升級為、惡化為
+    129. be embarked on 着手進行、開始從事
+    130. ape 模仿、類人猿
+    131. villager 村民
+    132. be extracted from 從……中提取（或拔出）
+    133. be eroded away 被侵蝕掉
+    134. be evacuated from 從……撤離
+    135. be enlightened on 受到關於……的啟發（或開悟）
+    136. devastating 破壞性極大的、毀滅性的
+    137. flood 洪水、淹沒
+    138. mayor 市長
+    139. a skeleton in the closet 家醜、不可告人的祕密
+    140. a suspended sentence 緩刑
+    141. an optimistic view 樂觀的看法
+    142. the ebb and flow 潮汐的漲落、起伏興衰
+    143. extramarital affair 婚外情
+    144. by analogy 類推地、按類比
+    145. under oath 在宣誓下、具結
+    146. on patrol 在巡邏中
+    147. on the sly 祕密地、偷偷地
+    148. champion 捍衛者、冠軍、支持
+    149. opponent 對手、敵手
+    150. ward off 避開、抵擋、化解
+    151. quest for 追求、尋求
+    152. plunge into 投入、陷入、縱身跳入
+    153. dispose of 處理、清除、解決
+    154. make a plea for 爲……懇求（或辯護）
+    155. make a dash for 猛衝向……、直奔
+    156. make a mockery of 將……變成笑柄、愚弄
+    157. make a recommendation for 爲……提出建議
+    158. environment 環境
+    159. exert pressure on 對……施加壓力
+    160. intervene in 干涉、介入
+    161. accommodate oneself to 使自己適應於
+    162. ponder on 沉思、深思
+    </textarea>
+    
+    <button class="btn-generate" onclick="generateList()">產生單元列表</button>
+    
+    <select id="unitSelect" onchange="showUnit()" style="display: none;"></select>
+    
+    <div id="wordList" style="margin-top: 10px;"></div>
+
+    <!-- 這裡新增：返回最上層按鈕的 HTML -->
+    <button id="backToTopBtn" onclick="scrollToTop()" title="回到最上面">⬆️</button>
+
+    <script>
+        let units = []; 
+
+        function generateList() {
+            const text = document.getElementById('wordInput').value;
+            const lines = text.split('\n');
+            
+            units = []; 
+            let currentUnit = { name: '預設單元', words: [] };
+
+            lines.forEach(line => {
+                line = line.trim();
+                if(line === '') return;
+
+                if (/^\d+\./.test(line)) {
+                    let engPart = line;
+                    const chineseMatch = line.match(/[\u4e00-\u9fa5]/);
+                    if (chineseMatch) { engPart = line.substring(0, chineseMatch.index); }
+                    engPart = engPart.replace(/^\d+\.\s*/, '').trim();
+
+                    if(engPart !== '') {
+                        currentUnit.words.push({ originalText: line, engText: engPart });
+                    }
+                } else {
+                    if (currentUnit.words.length > 0) {
+                        units.push(currentUnit);
+                    }
+                    currentUnit = { name: line, words: [] };
+                }
+            });
+
+            if (currentUnit.words.length > 0) {
+                units.push(currentUnit);
+            }
+
+            setupPagination();
+        }
+
+        function setupPagination() {
+            const select = document.getElementById('unitSelect');
+            select.innerHTML = ''; 
+
+            if(units.length === 0) {
+                select.style.display = 'none';
+                document.getElementById('wordList').innerHTML = '';
                 return;
             }
 
-            let cleanLine = line.replace(/^\d+[\.\)]\s*/, '').trim();
-            let match = cleanLine.match(/^([a-zA-Z\s\.\/]+)([\s\S]*)$/);
-            
-            if (match) {
-                let word = match[1].trim();
-                let definition = match[2].trim();
-                
-                if (word) {
-                    list.push({
-                        id: globalId++,
-                        unit: currentUnit,
-                        word: word,
-                        definition: definition || ""
-                    });
-                }
-            }
-        });
-        return list;
-    }
+            units.forEach((unit, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${unit.name} (共 ${unit.words.length} 字)`;
+                select.appendChild(option);
+            });
 
-    const wordsList = parseRawText(rawText);
-
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-        if (tabName === 'manage') {
-            document.querySelector('.tabs button:nth-child(1)').classList.add('active');
-            document.getElementById('tab-manage').classList.add('active');
-        } else if (tabName === 'export') {
-            document.querySelector('.tabs button:nth-child(2)').classList.add('active');
-            document.getElementById('tab-export').classList.add('active');
-            document.getElementById('jsonOutput').value = JSON.stringify(wordsList, null, 4);
+            select.style.display = 'block'; 
+            showUnit(); 
         }
-    }
 
-    // 強制指定美式口音的智慧發音函式
-    function speak(text) {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
+        function showUnit() {
+            const select = document.getElementById('unitSelect');
+            const unitIndex = parseInt(select.value) || 0;
+            const unitWords = units[unitIndex].words;
             
-            let processedText = text
-                .replace(/\bsb\.?\b/gi, 'somebody')
-                .replace(/\bsth\.?\b/gi, 'something')
-                .replace(/…/g, '')
-                .trim();
+            const listDiv = document.getElementById('wordList');
+            listDiv.innerHTML = '';
 
-            const utterance = new SpeechSynthesisUtterance(processedText);
-            
-            // 強制設定為美式英文口音
-            utterance.lang = 'en-US';
-            utterance.rate = 0.85; // 語速稍微調慢
+            unitWords.forEach(word => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'word-item';
 
-            // 自動尋找裝置中最好的美式語音（Voice）
-            const voices = window.speechSynthesis.getVoices();
-            const usVoice = voices.find(voice => voice.lang === 'en-US' || voice.lang === 'en_US');
-            if (usVoice) {
-                utterance.voice = usVoice;
-            }
-            
-            window.speechSynthesis.speak(utterance);
-        } else {
-            alert('您的瀏覽器不支援語音功能');
-        }
-    }
+                const textSpan = document.createElement('span');
+                textSpan.className = 'text-part';
+                textSpan.textContent = word.originalText;
 
-    // 某些瀏覽器需要預先載入語音清單
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.onvoiceschanged = () => {
-            window.speechSynthesis.getVoices();
-        };
-    }
+                const playBtn = document.createElement('button');
+                playBtn.className = 'play-btn';
+                playBtn.innerHTML = '🔊 播放';
+                playBtn.onclick = () => speak(word.engText);
 
-    function renderList() {
-        const container = document.getElementById('wordListContainer');
-        const select = document.getElementById('unitJumpSelect');
-        document.getElementById('wordCount').innerText = wordsList.length;
-
-        container.innerHTML = '';
-        select.innerHTML = '<option value="">-- 請選擇單元 --</option>';
-
-        let grouped = {};
-        wordsList.forEach(item => {
-            if (!grouped[item.unit]) grouped[item.unit] = [];
-            grouped[item.unit].push(item);
-        });
-
-        for (let unitName in grouped) {
-            const unitHeader = document.createElement('div');
-            unitHeader.className = 'unit-title';
-            unitHeader.id = `unit-${CSS.escape(unitName)}`;
-            unitHeader.innerText = unitName;
-            container.appendChild(unitHeader);
-
-            const option = document.createElement('option');
-            option.value = unitName;
-            option.text = unitName;
-            select.appendChild(option);
-
-            grouped[unitName].forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'word-card';
-                const safeWord = item.word.replace(/'/g, "\\'");
-                
-                div.innerHTML = `
-                    <div class="word-info">
-                        <h4>${item.word}</h4>
-                        <p><strong>釋義：</strong>${item.definition}</p>
-                    </div>
-                    <div>
-                        <button onclick="speak('${safeWord}')">🔊 聽發音</button>
-                    </div>
-                `;
-                container.appendChild(div);
+                itemDiv.appendChild(textSpan);
+                itemDiv.appendChild(playBtn);
+                listDiv.appendChild(itemDiv);
             });
         }
-    }
 
-    function jumpToUnit(unitName) {
-        if (!unitName) return;
-        const targetElement = document.getElementById(`unit-${CSS.escape(unitName)}`);
-        if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US'; 
+                utterance.rate = 0.9;     
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('你的瀏覽器不支援語音功能。');
+            }
         }
-    }
 
-    function downloadJSON() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(wordsList, null, 4));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", "words.json");
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    }
+        /* ----- 這裡新增：返回最上層的 JavaScript 功能 ----- */
+        // 當使用者滾動頁面時，檢查是否要顯示按鈕
+        window.onscroll = function() {
+            scrollFunction();
+        };
 
-    renderList();
-</script>
+        function scrollFunction() {
+            const topBtn = document.getElementById("backToTopBtn");
+            // 當往下捲動超過 100 像素時，顯示按鈕；否則隱藏
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                topBtn.style.display = "block";
+            } else {
+                topBtn.style.display = "none";
+            }
+        }
 
+        // 點擊按鈕後，平滑滾動到最上方
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // 讓滾動有平滑的動畫效果
+            });
+        }
+        /* -------------------------------------------------- */
+    </script>
 </body>
 </html>
