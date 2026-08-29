@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>懿城文教機構-4000/7000題本單字音檔</title>
+    <title>懿城文教機構-4000/7000常考單字準備</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f7f6; }
         h2 { color: #333; text-align: center; }
@@ -11,40 +11,29 @@
         .btn-generate { display: block; width: 100%; padding: 12px; margin-top: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; }
         .btn-generate:hover { background-color: #45a049; }
         select { width: 100%; padding: 12px; margin-top: 20px; border-radius: 8px; font-size: 16px; border: 1px solid #ccc; background-color: white; cursor: pointer; }
+        
+        /* 播放控制面板 */
+        #controlPanel { display: none; display: flex; justify-content: space-between; margin-top: 15px; }
+        .btn-play-all { flex: 1; padding: 12px; background-color: #2196F3; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-right: 10px; }
+        .btn-stop { padding: 12px 20px; background-color: #f44336; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+        
         .word-item { display: flex; justify-content: space-between; background: white; padding: 15px; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); align-items: center; }
         .text-part { font-size: 16px; color: #333; }
         .play-btn { padding: 8px 15px; cursor: pointer; background-color: #008CBA; color: white; border: none; border-radius: 5px; font-size: 14px; transition: 0.3s; }
         .play-btn:hover { background-color: #007399; }
         
-        /* 這裡新增：返回最上層按鈕的樣式 */
+        /* 返回最上層按鈕 */
         #backToTopBtn {
-            display: none; /* 預設先隱藏 */
-            position: fixed; /* 固定在畫面上 */
-            bottom: 20px; /* 距離底部 20px */
-            right: 20px; /* 距離右側 20px */
-            z-index: 99;
-            font-size: 24px;
-            border: none;
-            outline: none;
-            background-color: #ff9800;
-            color: white;
-            cursor: pointer;
-            padding: 10px 15px;
-            border-radius: 50px; /* 圓角設計 */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: 0.3s;
+            display: none; position: fixed; bottom: 20px; right: 20px; z-index: 99; font-size: 24px; border: none; outline: none; background-color: #ff9800; color: white; cursor: pointer; padding: 10px 15px; border-radius: 50px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: 0.3s;
         }
-        #backToTopBtn:hover {
-            background-color: #e68a00;
-        }
+        #backToTopBtn:hover { background-color: #e68a00; }
     </style>
 </head>
 <body>
 
-    <h2>🔊 懿城文教機構-4000/7000題本單字音檔</h2>
-    <p>點擊產生列表，開始複習單字！</p>
+    <h2>🔊 懿城文教機構-4000/7000常考單字準備</h2>
+    <p>點擊產生列表，支援中英文雙語發音：</p>
     
-    <!-- 你的所有單字都已放進預設框框中 -->
     <textarea id="wordInput">
     # 4000單第一單元(unit 1)
     1. sheet 張
@@ -3650,19 +3639,28 @@
     160. intervene in 干涉、介入
     161. accommodate oneself to 使自己適應於
     162. ponder on 沉思、深思
-    </textarea>
+ </textarea>
     
     <button class="btn-generate" onclick="generateList()">產生單元列表</button>
     
     <select id="unitSelect" onchange="showUnit()" style="display: none;"></select>
     
+    <!-- 全部播放與停止的控制面板 -->
+    <div id="controlPanel" style="display: none;">
+        <button class="btn-play-all" onclick="playAll()">▶️ 連續播放整個單元</button>
+        <button class="btn-stop" onclick="stopPlay()">⏹️ 停止</button>
+    </div>
+    
     <div id="wordList" style="margin-top: 10px;"></div>
 
-    <!-- 這裡新增：返回最上層按鈕的 HTML -->
     <button id="backToTopBtn" onclick="scrollToTop()" title="回到最上面">⬆️</button>
 
     <script>
         let units = []; 
+        let isPlayingAll = false;
+        let currentUnitWords = [];
+        let currentWordIndex = 0;
+        let currentUtterances = []; // 避免瀏覽器語音中斷的小技巧
 
         function generateList() {
             const text = document.getElementById('wordInput').value;
@@ -3677,34 +3675,38 @@
 
                 if (/^\d+\./.test(line)) {
                     let engPart = line;
+                    let chiPart = '';
+                    
+                    // 分離英文和中文
                     const chineseMatch = line.match(/[\u4e00-\u9fa5]/);
-                    if (chineseMatch) { engPart = line.substring(0, chineseMatch.index); }
+                    if (chineseMatch) { 
+                        engPart = line.substring(0, chineseMatch.index);
+                        chiPart = line.substring(chineseMatch.index); // 抓取中文部分
+                    }
                     engPart = engPart.replace(/^\d+\.\s*/, '').trim();
+                    chiPart = chiPart.trim();
 
-                    if(engPart !== '') {
-                        currentUnit.words.push({ originalText: line, engText: engPart });
+                    if(engPart !== '' || chiPart !== '') {
+                        currentUnit.words.push({ originalText: line, engText: engPart, chiText: chiPart });
                     }
                 } else {
-                    if (currentUnit.words.length > 0) {
-                        units.push(currentUnit);
-                    }
+                    if (currentUnit.words.length > 0) { units.push(currentUnit); }
                     currentUnit = { name: line, words: [] };
                 }
             });
 
-            if (currentUnit.words.length > 0) {
-                units.push(currentUnit);
-            }
-
+            if (currentUnit.words.length > 0) { units.push(currentUnit); }
             setupPagination();
         }
 
         function setupPagination() {
             const select = document.getElementById('unitSelect');
+            const controlPanel = document.getElementById('controlPanel');
             select.innerHTML = ''; 
 
             if(units.length === 0) {
                 select.style.display = 'none';
+                controlPanel.style.display = 'none';
                 document.getElementById('wordList').innerHTML = '';
                 return;
             }
@@ -3717,18 +3719,20 @@
             });
 
             select.style.display = 'block'; 
+            controlPanel.style.display = 'flex'; 
             showUnit(); 
         }
 
         function showUnit() {
+            stopPlay(); // 切換單元時自動停止發音
             const select = document.getElementById('unitSelect');
             const unitIndex = parseInt(select.value) || 0;
-            const unitWords = units[unitIndex].words;
+            currentUnitWords = units[unitIndex].words;
             
             const listDiv = document.getElementById('wordList');
             listDiv.innerHTML = '';
 
-            unitWords.forEach(word => {
+            currentUnitWords.forEach((word, index) => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'word-item';
 
@@ -3738,8 +3742,8 @@
 
                 const playBtn = document.createElement('button');
                 playBtn.className = 'play-btn';
-                playBtn.innerHTML = '🔊 播放';
-                playBtn.onclick = () => speak(word.engText);
+                playBtn.innerHTML = '🔊 單字播放';
+                playBtn.onclick = () => playSingleWord(word.engText, word.chiText);
 
                 itemDiv.appendChild(textSpan);
                 itemDiv.appendChild(playBtn);
@@ -3747,42 +3751,100 @@
             });
         }
 
-        function speak(text) {
+        /* --- 核心發音邏輯 --- */
+        function playSingleWord(eng, chi) {
+            isPlayingAll = false; // 點擊單一單字時，取消連續播放
+            doSpeak(eng, chi, null);
+        }
+
+        function playAll() {
+            if (currentUnitWords.length === 0) return;
+            isPlayingAll = true;
+            currentWordIndex = 0;
+            playNext();
+        }
+
+        function stopPlay() {
+            isPlayingAll = false;
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US'; 
-                utterance.rate = 0.9;     
-                window.speechSynthesis.speak(utterance);
-            } else {
-                alert('你的瀏覽器不支援語音功能。');
             }
         }
 
-        /* ----- 這裡新增：返回最上層的 JavaScript 功能 ----- */
-        // 當使用者滾動頁面時，檢查是否要顯示按鈕
-        window.onscroll = function() {
-            scrollFunction();
-        };
+        function playNext() {
+            if (!isPlayingAll) return; // 如果被按了停止，就跳出循環
+            if (currentWordIndex >= currentUnitWords.length) {
+                isPlayingAll = false; // 整個單元播完了
+                return;
+            }
+            
+            let word = currentUnitWords[currentWordIndex];
+            currentWordIndex++;
+            
+            // 唸完一個單字後，休息 0.8 秒再唸下一個
+            doSpeak(word.engText, word.chiText, () => {
+                if(isPlayingAll) { setTimeout(playNext, 800); }
+            });
+        }
 
-        function scrollFunction() {
+        function doSpeak(engText, chiText, callback) {
+            if (!('speechSynthesis' in window)) {
+                alert('你的瀏覽器不支援語音功能。');
+                return;
+            }
+            
+            window.speechSynthesis.cancel(); // 清除之前的發音
+            currentUtterances = []; 
+            
+            let hasEng = (engText !== '');
+            let hasChi = (chiText !== '');
+
+            let uEng = hasEng ? new SpeechSynthesisUtterance(engText) : null;
+            let uChi = hasChi ? new SpeechSynthesisUtterance(chiText) : null;
+
+            // 設定英文發音
+            if (uEng) {
+                uEng.lang = 'en-US'; 
+                uEng.rate = 0.85; // 英文稍微放慢一點點聽得更清楚
+                currentUtterances.push(uEng);
+            }
+            // 設定中文發音
+            if (uChi) {
+                uChi.lang = 'zh-TW';
+                uChi.rate = 0.95; // 中文速度
+                currentUtterances.push(uChi);
+            }
+
+            // 串接播放邏輯 (先唸英文，再唸中文，最後觸發 callback 換下一個單字)
+            if (uEng && uChi) {
+                uEng.onend = () => { 
+                    if (!isPlayingAll && callback !== null) return; 
+                    window.speechSynthesis.speak(uChi); 
+                };
+                uChi.onend = () => { if (callback) callback(); };
+                window.speechSynthesis.speak(uEng);
+            } else if (uEng) {
+                uEng.onend = () => { if (callback) callback(); };
+                window.speechSynthesis.speak(uEng);
+            } else if (uChi) {
+                uChi.onend = () => { if (callback) callback(); };
+                window.speechSynthesis.speak(uChi);
+            }
+        }
+
+        /* --- 返回最上層功能 --- */
+        window.onscroll = function() {
             const topBtn = document.getElementById("backToTopBtn");
-            // 當往下捲動超過 100 像素時，顯示按鈕；否則隱藏
             if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
                 topBtn.style.display = "block";
             } else {
                 topBtn.style.display = "none";
             }
-        }
+        };
 
-        // 點擊按鈕後，平滑滾動到最上方
         function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth' // 讓滾動有平滑的動畫效果
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        /* -------------------------------------------------- */
     </script>
 </body>
 </html>
